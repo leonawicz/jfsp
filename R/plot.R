@@ -152,8 +152,9 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
     p <- ggplot2::ggplot(x, ggplot2::aes_string("factor(Decade)", "Mean", color = clr_var,
                                        fill = clr_var, linetype = lty_var)) +
       ggplot2::geom_errorbar(ggplot2::aes_string(ymin = "`5th percentile`", ymax = "`95th percentile`"),
-                    size = 1, position = position_dodge(width = 0.5), width = 0.4) +
-      ggplot2::geom_point(shape = 21, size = 2, colour = "black", position = position_dodge(width = 0.5)) +
+                    size = 1, position = ggplot2::position_dodge(width = 0.5), width = 0.4) +
+      ggplot2::geom_point(shape = 21, size = 2, colour = "black",
+                          position = ggplot2::position_dodge(width = 0.5)) +
       sfm + scm + slm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_discrete(labels = paste0(unique(x[["Decade"]]), "s")) +
       ggplot2::labs(title = title, subtitle = "Mean and 90% confidence interval by decade, treatment and RCP",
