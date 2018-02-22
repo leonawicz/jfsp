@@ -9,7 +9,7 @@
   dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["RCP"]], .data[["Year"]]) %>%
     dplyr::summarise(BA = sum(.data[["BA"]])) %>%
     dplyr::mutate(CBA = cumsum(.data[["BA"]]), BA_sd_ma10 = RcppRoll::roll_sd(.data[["BA"]], 10, fill = NA)) %>%
-    ungroup()
+    dplyr::ungroup()
 }
 
 # nolint start
@@ -66,8 +66,8 @@
 #' jfsp_plot("ba_box", 1950:2013, log = TRUE)
 jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
                       file = NULL, base_size = 14, text_size = 18, ...){
-  x <- switch(type, "ba_sd" = fmoba, "ba_box" = fmoba, "cba" = fmoba, "cost" = cost,
-              "cost_dec" = costSummary, "cdratio" = cdratio, "pfire" = fbxfire)
+  x <- switch(type, "ba_sd" = jfsp::fmoba, "ba_box" = jfsp::fmoba, "cba" = jfsp::fmoba, "cost" = jfsp::cost,
+              "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "pfire" = jfsp::fbxfire)
   o <- list(...)
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
   family <- if(is.null(o$family)) "sans" else o$family
