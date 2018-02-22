@@ -93,7 +93,7 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
     if(!is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "BA_sd_ma10", color = clr_var,
                                                     fill = clr_var, linetype = lty_var))
     p <- p + ggplot2::geom_line(size = 1) +
-      ggplot2::facet_wrap(as.formula("~FMO"), scales = "free_y") +
+      ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y") +
       scm + sfm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), expand = c(0, 0), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "inter-annual variability in burn area"),
@@ -105,7 +105,7 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
                               "Historical modeled and projected 5-model average"))
     if(is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "CBA", colour = clr_var, group = grp_var))
     if(!is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "CBA", colour = clr_var, linetype = lty_var))
-    p <- p + ggplot2::geom_step() + ggplot2::facet_wrap(as.formula("~FMO"), scales = "free_y") +
+    p <- p + ggplot2::geom_step() + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y") +
       scm + slm + thm + .thm_adj("topleft", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "cumulative annual burn area"),
@@ -127,7 +127,7 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
       ggplot2::geom_boxplot(outlier.shape = NA) +
       ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), pch = 21, alpha = 0.5,
                  position = ggplot2::position_jitterdodge(jitter.width = 0.5, dodge.width = 0.75)) +
-      ggplot2::facet_wrap(as.formula("~FMO"), scales = "free_y") +
+      ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y") +
       sfm + scm + thm + .thm_adj("topright", text_size = tsize) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "annual burn area"),
                     subtitle = subtitle, y = ba_lab)
@@ -139,7 +139,7 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
       ggplot2::geom_line() + ggplot2::geom_point()
     if(!is_hist)
       p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "value", colour = clr_var, linetype = lty_var)) +
-      ggplot2::geom_line() + ggplot2::geom_point(shape = 21) + ggplot2::facet_wrap(as.formula("~cost"))
+      ggplot2::geom_line() + ggplot2::geom_point(shape = 21) + ggplot2::facet_wrap(stats::as.formula("~cost"))
     p <- p + thm + sfm + scm + slm + .thm_adj("topleft", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "fire management cost"),
@@ -175,7 +175,7 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
                     subtitle = "Over multiple time periods", x = "Distance from center (km)", y = "P(Fire)") +
       scm + slm + thm + .thm_adj("topleft", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = c(0, 50), breaks = seq(0, 50, by = 10)) +
-      ggplot2::facet_wrap(as.formula("~Years"))
+      ggplot2::facet_wrap(stats::as.formula("~Years"))
   }
   if(is.null(file)) return(p)
   grDevices::png(file, width = 3000, height = 2000, res = 300, type = "cairo")
