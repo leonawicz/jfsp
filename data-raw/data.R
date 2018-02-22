@@ -9,9 +9,10 @@ basecost <- tibble::data_frame(
 
 # confierous:deciduous ratios
 cdratio <- readRDS("C:/github/jfsp-archive/data-raw/conif_decid_area.rds") %>%
-  group_by(Tx, RCP, FMO, Year, Vegetation) %>% summarise(Val = mean(Val)) %>%
+  rename(Set = FMO) %>%
+  group_by(Set, Tx, RCP, Year, Vegetation) %>% summarise(Val = mean(Val)) %>%
   summarise(Val = Val[1] / Val[2]) %>% ungroup %>%
-  mutate(Tx = ifelse(Tx == "tfmoba", "Status quo", ifelse(Tx == "tx1", "Treatment 1", "Treatment 2")))
+  mutate(Tx = ifelse(Tx == "tx0", "Status quo", ifelse(Tx == "tx1", "Treatment 1", "Treatment 2")))
 
 # Robust annual P(Fire) near Fairbanks, Alaska
 fbxfire <- readRDS("C:/github/jfsp-archive/data-raw/fire_prob_fbks_simplified.rds")
