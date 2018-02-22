@@ -19,3 +19,8 @@ Suggests:
     covr
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
+Imports: 
+    dplyr,
+    magrittr,
+    ggplot2,
+    tibble
