@@ -24,4 +24,5 @@ Imports:
     dplyr,
     magrittr,
     ggplot2,
-    tibble
+    tibble,
+    RcppRoll
