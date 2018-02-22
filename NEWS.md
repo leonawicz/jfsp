@@ -1,3 +1,8 @@
+# jfsp 0.2.0
+
+* Refactored `jfsp_plot`, making data sets implicit so that specifying them via argument is not necessary. Reduced, reordered formal arguments.
+* Added optional arguments, including statewide aggregation of `fmoba` data for applicable plots using `alaska = TRUE`.
+
 # jfsp 0.1.0
 
 * Added primary plotting function for package data sets.
