@@ -1,0 +1,18 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+jfsp
+====
+
+[![Travis-CI Build Status](https://travis-ci.org/leonawicz/jfsp.svg?branch=master)](https://travis-ci.org/leonawicz/jfsp) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/leonawicz/jfsp?branch=master&svg=true)](https://ci.appveyor.com/project/leonawicz/jfsp) [![Coverage Status](https://img.shields.io/codecov/c/github/leonawicz/jfsp/master.svg)](https://codecov.io/github/leonawicz/jfsp?branch=master)
+
+The `jfsp` package encapsulates code, data and analysis results associated with ALFRESCO wildfire model outputs produced by the Scenarios Network for Alaska and Arctic Planning (SNAP) to assist the Joint Fire Science Program (JFSP). `jfsp` provides a collection of functions, data sets, apps and interactive documents for exploring and analyzing ALFRESCO wildfire model outputs associated with JFSP-related projects. It is a satellite package in the SNAPverse R package ecosystem.
+
+Installation
+------------
+
+You can install jfsp from GitHub with:
+
+``` r
+# install.packages('devtools')
+devtools::install_github("leonawicz/jfsp")
+```
