@@ -5,6 +5,8 @@
   if(all(years <= 2013)) hist_col else if(all(years > 2013)) proj_col else all_col
 }
 
+# nolint start
+
 #' Create plots based on various JFSP data sets
 #'
 #' Create plots for each of the data sets included in the package using one convenient wrapper function.
@@ -46,7 +48,8 @@
 #'
 #' @examples
 #' jfsp_plot(fmoba, 1950:2013, "ba_box", log = TRUE)
-jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL, file = NULL, base_size = 14, text_size = 18, ...){
+jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
+                      file = NULL, base_size = 14, text_size = 18, ...){
   o <- list(...)
   family <- if(is.null(o$family)) "sans" else o$family
   tsize <- text_size
@@ -181,6 +184,8 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL, f
   invisible()
 }
 
+# nolint end
+
 .thm <- function(base_size = 14, base_family = "", base_col = "black",
                        base_fill = "white", grid_col = "#F0F0F0") {
   .thm_prep(base_size = base_size, base_family = base_family,
@@ -219,7 +224,8 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL, f
 .thm_adj <- function(position, direction = "horizontal", text_size = 14){
   pos <- switch(position, topright = c(1, 1), topleft = c(0, 1))
   just <- switch(position, topright = "right", topleft = "left")
-  ggplot2::theme(plot.margin = ggplot2::unit(c(0.5, 1.5, 0.5, 0.5), "lines"), text = ggplot2::element_text(size = text_size),
+  ggplot2::theme(plot.margin = ggplot2::unit(c(0.5, 1.5, 0.5, 0.5), "lines"),
+                 text = ggplot2::element_text(size = text_size),
                  legend.position = pos, legend.box.just = just, legend.direction = direction,
                  legend.justification = pos, legend.background = ggplot2::element_rect(fill = "#CCCCCC80"))
 }

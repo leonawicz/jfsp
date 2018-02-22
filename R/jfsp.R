@@ -1,4 +1,4 @@
-#globalVariables(c())
+globalVariables(c(".data"))
 
 #' jfsp: R functions and data associated with ALFRESCO wildfire model outputs for the Joint Fire Science Program (JFSP).
 #'
@@ -10,6 +10,5 @@
 #' @name jfsp
 NULL
 
-#' @import raster
 #' @importFrom magrittr %>%
 NULL
