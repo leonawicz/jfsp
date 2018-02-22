@@ -4,15 +4,13 @@
 \alias{jfsp_plot}
 \title{Create plots based on various JFSP data sets}
 \usage{
-jfsp_plot(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
+jfsp_plot(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
   file = NULL, base_size = 14, text_size = 18, ...)
 }
 \arguments{
-\item{x}{a package data set. See details.}
+\item{type}{character, the type of plot to make, based on a particular package data set. See details.}
 
 \item{years}{numeric, vector of consecutive years. The maximum range is \code{1950:2099}. See details.}
-
-\item{type}{character, the type of plot to make for a specific data set \code{x}. See details.}
 
 \item{by_rcp}{logical, condition on RCP, defaults to \code{TRUE}. Otherwise marginalize over RCP. This applied to RCP-driven years, 2014 - 2099.}
 
@@ -33,18 +31,28 @@ a ggplot object. If saving a png file to disk, nothing is returned.
 Create plots for each of the data sets included in the package using one convenient wrapper function.
 }
 \details{
-Data sets included in the package can be plotted however desired, but for convenience the package offers this wrapper function.
-When a package data set is paired with an appropriate plot \code{type},
-a plot is created using standardized formatting based on the main \code{snapplot} package plot theme.
-As long as the data set has not been manipulated, its assigned attributes will inform \code{jfsp_plot} how to graph it.
+Data sets included in the package can be explicitly plotted however desired,
+but for convenience the package offers this wrapper function that creates stock plots associated with package data sets.
+A plot \code{type} calls the applicable data set for that plot internally.
+Stock plots use standardized formatting similar to the main \code{snapplot} package plot theme.
 
-Data sets from the package and the associated available plot \code{type} options are as follows: ...
+Available stock plots include:
+
+\describe{
+  \item{\code{ba_sd}}{10-year moving average FMO zone burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
+  \item{\code{ba_box}}{FMO zone burn area aggregate period box plots. Optional arguments: \code{alaska = TRUE}, \code{log = TRUE}, \code{fmo}.}
+  \item{\code{cba}}{FMO zone cumulative burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
+  \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
+  \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series.}
+  \item{\code{cdratio}}{Alaska coniferous:deciduous ratios annual time series. Optional arguments: \code{breaks}.}
+  \item{\code{pfire}}{Probability of fire near Fairbanks as a function of radial buffer distance. The \code{years} argument is ignored for this plot.}
+}
 
 Additional arguments can be provided. General arguments include \code{family} (font family).
-Arguments related to plots of a specific data set will be ignored for other data sets.
-These include \code{breaks}, a vector of breaks applicable to time series plots with years along the x-axis,
-\code{log = TRUE}, which can be used to select a log scale presentation for the burn area box plots type,
-and \code{fmo}, which allows for subsetting the FMO zones available in the \code{fmoba} data set.
+Arguments related to specific plot types are ignored when not applicable.
+\code{alaska = TRUE} performs statewide aggregation over all FMO zones. \code{log = TRUE} applies a log scale transformation.
+\code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
+\code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
 If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
 
 If the \code{showtext} is loaded, it may be necessary to significantly increase \code{base_size} and/or \code{text_size} for the 300 dpi image saved when \code{file} is not \code{NULL}.
@@ -56,5 +64,5 @@ When saving a plot directly from \code{jfsp_plot} by passing a filename to \code
 \code{jfsp_plot} will internally adjust plot formatting settings in order to save a 300 dpi resolution image to disk while maintaining consistent and appropriate sizing of text and other plot elements.
 }
 \examples{
-jfsp_plot(fmoba, 1950:2013, "ba_box", log = TRUE)
+jfsp_plot("ba_box", 1950:2013, log = TRUE)
 }

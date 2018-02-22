@@ -5,24 +5,41 @@
   if(all(years <= 2013)) hist_col else if(all(years > 2013)) proj_col else all_col
 }
 
+.fmo_combine <- function(x){
+  dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["RCP"]], .data[["Year"]]) %>%
+    dplyr::summarise(BA = sum(.data[["BA"]])) %>%
+    dplyr::mutate(CBA = cumsum(.data[["BA"]]), BA_sd_ma10 = RcppRoll::roll_sd(.data[["BA"]], 10, fill = NA)) %>%
+    ungroup()
+}
+
 # nolint start
 
 #' Create plots based on various JFSP data sets
 #'
 #' Create plots for each of the data sets included in the package using one convenient wrapper function.
 #'
-#' Data sets included in the package can be plotted however desired, but for convenience the package offers this wrapper function.
-#' When a package data set is paired with an appropriate plot \code{type},
-#' a plot is created using standardized formatting based on the main \code{snapplot} package plot theme.
-#' As long as the data set has not been manipulated, its assigned attributes will inform \code{jfsp_plot} how to graph it.
+#' Data sets included in the package can be explicitly plotted however desired,
+#' but for convenience the package offers this wrapper function that creates stock plots associated with package data sets.
+#' A plot \code{type} calls the applicable data set for that plot internally.
+#' Stock plots use standardized formatting similar to the main \code{snapplot} package plot theme.
 #'
-#' Data sets from the package and the associated available plot \code{type} options are as follows: ...
+#' Available stock plots include:
+#'
+#' \describe{
+#'   \item{\code{ba_sd}}{10-year moving average FMO zone burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
+#'   \item{\code{ba_box}}{FMO zone burn area aggregate period box plots. Optional arguments: \code{alaska = TRUE}, \code{log = TRUE}, \code{fmo}.}
+#'   \item{\code{cba}}{FMO zone cumulative burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
+#'   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
+#'   \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series.}
+#'   \item{\code{cdratio}}{Alaska coniferous:deciduous ratios annual time series. Optional arguments: \code{breaks}.}
+#'   \item{\code{pfire}}{Probability of fire near Fairbanks as a function of radial buffer distance. The \code{years} argument is ignored for this plot.}
+#' }
 #'
 #' Additional arguments can be provided. General arguments include \code{family} (font family).
-#' Arguments related to plots of a specific data set will be ignored for other data sets.
-#' These include \code{breaks}, a vector of breaks applicable to time series plots with years along the x-axis,
-#' \code{log = TRUE}, which can be used to select a log scale presentation for the burn area box plots type,
-#' and \code{fmo}, which allows for subsetting the FMO zones available in the \code{fmoba} data set.
+#' Arguments related to specific plot types are ignored when not applicable.
+#' \code{alaska = TRUE} performs statewide aggregation over all FMO zones. \code{log = TRUE} applies a log scale transformation.
+#' \code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
+#' \code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
 #' If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
 #'
 #' If the \code{showtext} is loaded, it may be necessary to significantly increase \code{base_size} and/or \code{text_size} for the 300 dpi image saved when \code{file} is not \code{NULL}.
@@ -33,9 +50,8 @@
 #' When saving a plot directly from \code{jfsp_plot} by passing a filename to \code{file},
 #' \code{jfsp_plot} will internally adjust plot formatting settings in order to save a 300 dpi resolution image to disk while maintaining consistent and appropriate sizing of text and other plot elements.
 #'
-#' @param x a package data set. See details.
+#' @param type character, the type of plot to make, based on a particular package data set. See details.
 #' @param years numeric, vector of consecutive years. The maximum range is \code{1950:2099}. See details.
-#' @param type character, the type of plot to make for a specific data set \code{x}. See details.
 #' @param by_rcp logical, condition on RCP, defaults to \code{TRUE}. Otherwise marginalize over RCP. This applied to RCP-driven years, 2014 - 2099.
 #' @param col optional vector of colors to override the defaults built into \code{jfsp_plot}.
 #' @param file character, if provided, the plot is saved to disk. Otherwise, it is plotted in the R session graphics device. See details.
@@ -47,10 +63,13 @@
 #' @export
 #'
 #' @examples
-#' jfsp_plot(fmoba, 1950:2013, "ba_box", log = TRUE)
-jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
+#' jfsp_plot("ba_box", 1950:2013, log = TRUE)
+jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
                       file = NULL, base_size = 14, text_size = 18, ...){
+  x <- switch(type, "ba_sd" = fmoba, "ba_box" = fmoba, "cba" = fmoba, "cost" = cost,
+              "cost_dec" = costSummary, "cdratio" = cdratio, "pfire" = fbxfire)
   o <- list(...)
+  alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
   family <- if(is.null(o$family)) "sans" else o$family
   tsize <- text_size
   bsize <- base_size
@@ -75,8 +94,12 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
   is_proj <- all(years > 2013)
   breaks <- if(is.null(o$breaks)) ggplot2::waiver() else o$breaks
   if(type %in% c("ba_sd", "cba", "ba_box")){
-    fmo <- if(is.null(o$fmo)) c("Full", "Critical") else o$fmo
-    x <- dplyr::filter(x, .data[["FMO"]] %in% fmo)
+    if(alaska){
+      x <- .fmo_combine(x)
+    } else {
+      fmo <- if(is.null(o$fmo)) c("Full", "Critical") else o$fmo
+      x <- dplyr::filter(x, .data[["FMO"]] %in% fmo)
+    }
   }
   if(is_hist){
     clr_var <- "Set"
@@ -92,9 +115,9 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
                                                    fill = clr_var, group = grp_var))
     if(!is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "BA_sd_ma10", color = clr_var,
                                                     fill = clr_var, linetype = lty_var))
-    p <- p + ggplot2::geom_line(size = 1) +
-      ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y") +
-      scm + sfm + thm + .thm_adj("topright", text_size = tsize) + gde +
+    p <- p + ggplot2::geom_line(size = 1)
+    if(!alaska) p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y")
+    p <- p + scm + sfm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), expand = c(0, 0), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "inter-annual variability in burn area"),
            subtitle = "10-year moving average by treatment and RCP", y = "10-year MA burn area SD")
@@ -105,8 +128,9 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
                               "Historical modeled and projected 5-model average"))
     if(is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "CBA", colour = clr_var, group = grp_var))
     if(!is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "CBA", colour = clr_var, linetype = lty_var))
-    p <- p + ggplot2::geom_step() + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y") +
-      scm + slm + thm + .thm_adj("topleft", text_size = tsize) + gde +
+    p <- p + ggplot2::geom_step()
+    if(!alaska) p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y")
+    p <- p + scm + slm + thm + .thm_adj("topleft", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "cumulative annual burn area"),
                     subtitle = subtitle, y = cba_lab)
@@ -126,9 +150,9 @@ jfsp_plot <- function(x, years = NULL, type = NULL, by_rcp = TRUE, col = NULL,
     p <- ggplot2::ggplot(x, ggplot2::aes_string("RCP", y_var, colour = clr_var)) +
       ggplot2::geom_boxplot(outlier.shape = NA) +
       ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), pch = 21, alpha = 0.5,
-                 position = ggplot2::position_jitterdodge(jitter.width = 0.5, dodge.width = 0.75)) +
-      ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y") +
-      sfm + scm + thm + .thm_adj("topright", text_size = tsize) +
+                 position = ggplot2::position_jitterdodge(jitter.width = 0.5, dodge.width = 0.75))
+    if(!alaska) p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y")
+    p <- p + sfm + scm + thm + .thm_adj("topright", text_size = tsize) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "annual burn area"),
                     subtitle = subtitle, y = ba_lab)
   } else if(type == "cost"){
