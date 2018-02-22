@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>All news • jfsp</title>
+<title>Burn area summary statistics. � fmobaSummary • jfsp</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -49,7 +49,7 @@
   </head>
 
   <body>
-    <div class="container template-news">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -192,44 +192,32 @@
       </header>
 
       <div class="row">
-
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Change log <small>All releases</small></h1>
+    <h1>Burn area summary statistics.</h1>
     </div>
 
-    <div class="contents">
-    <div id="jfsp-0-1-0" class="section level1">
-<h1 class="hasAnchor">
-<a href="#jfsp-0-1-0" class="anchor"></a>jfsp 0.1.0</h1>
-<ul>
-<li>Added primary plotting function for package data sets.</li>
-<li>Added seven package data sets.</li>
-<li>Update <code>jfsp_plot</code> function. It now handles plotting in R and saving plots to disk with an optional <code>file</code> argument. Some minimal handling for <code>showtext</code> issues when saving high dpi plots was also added.</li>
-<li>Updated unit tests.</li>
-<li>Updated documentation.</li>
-</ul>
-</div>
-    <div id="jfsp-0-0-0-9000" class="section level1">
-<h1 class="hasAnchor">
-<a href="#jfsp-0-0-0-9000" class="anchor"></a>jfsp 0.0.0.9000</h1>
-<ul>
-<li>Initialized package and added packaged scaffolding.</li>
-</ul>
-</div>
-    </div>
+    
+    <p>A data frame of burn area summary statistics by FMO zone. This data set is provided as a convenient summary of the <code>fmoba</code> data set.
+It summarizes <code>fmoba</code> over time, providing the following statistics: minimum, first quartile, median, mean, third quartile and maximum burn area.</p>
+    
+
+    <pre class="usage"><span class='no'>fmobaSummary</span></pre>
+        
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>A data frame with 48 rows and 10 columns.</p>
+    
+
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div id="tocnav">
-      <h2>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-        <li><a href="#jfsp-0-1-0">0.1.0</a></li>
-        <li><a href="#jfsp-0-0-0-9000">0.0.0.9000</a></li>
-      </ul>
-    </div>
-  </div>
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      
+      <li><a href="#format">Format</a></li>
+          </ul>
 
+  </div>
 </div>
 
       <footer>

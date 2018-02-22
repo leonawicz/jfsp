@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>All news • jfsp</title>
+<title>Create plots based on various JFSP data sets � jfsp_plot • jfsp</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -49,7 +49,7 @@
   </head>
 
   <body>
-    <div class="container template-news">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -192,44 +192,100 @@
       </header>
 
       <div class="row">
-
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Change log <small>All releases</small></h1>
+    <h1>Create plots based on various JFSP data sets</h1>
     </div>
 
-    <div class="contents">
-    <div id="jfsp-0-1-0" class="section level1">
-<h1 class="hasAnchor">
-<a href="#jfsp-0-1-0" class="anchor"></a>jfsp 0.1.0</h1>
-<ul>
-<li>Added primary plotting function for package data sets.</li>
-<li>Added seven package data sets.</li>
-<li>Update <code>jfsp_plot</code> function. It now handles plotting in R and saving plots to disk with an optional <code>file</code> argument. Some minimal handling for <code>showtext</code> issues when saving high dpi plots was also added.</li>
-<li>Updated unit tests.</li>
-<li>Updated documentation.</li>
-</ul>
-</div>
-    <div id="jfsp-0-0-0-9000" class="section level1">
-<h1 class="hasAnchor">
-<a href="#jfsp-0-0-0-9000" class="anchor"></a>jfsp 0.0.0.9000</h1>
-<ul>
-<li>Initialized package and added packaged scaffolding.</li>
-</ul>
-</div>
-    </div>
+    
+    <p>Create plots for each of the data sets included in the package using one convenient wrapper function.</p>
+    
+
+    <pre class="usage"><span class='fu'>jfsp_plot</span>(<span class='no'>x</span>, <span class='kw'>years</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>by_rcp</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>base_size</span> <span class='kw'>=</span> <span class='fl'>14</span>, <span class='kw'>text_size</span> <span class='kw'>=</span> <span class='fl'>18</span>, <span class='no'>...</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>a package data set. See details.</p></td>
+    </tr>
+    <tr>
+      <th>years</th>
+      <td><p>numeric, vector of consecutive years. The maximum range is <code>1950:2099</code>. See details.</p></td>
+    </tr>
+    <tr>
+      <th>type</th>
+      <td><p>character, the type of plot to make for a specific data set <code>x</code>. See details.</p></td>
+    </tr>
+    <tr>
+      <th>by_rcp</th>
+      <td><p>logical, condition on RCP, defaults to <code>TRUE</code>. Otherwise marginalize over RCP. This applied to RCP-driven years, 2014 - 2099.</p></td>
+    </tr>
+    <tr>
+      <th>col</th>
+      <td><p>optional vector of colors to override the defaults built into <code>jfsp_plot</code>.</p></td>
+    </tr>
+    <tr>
+      <th>file</th>
+      <td><p>character, if provided, the plot is saved to disk. Otherwise, it is plotted in the R session graphics device. See details.</p></td>
+    </tr>
+    <tr>
+      <th>base_size</th>
+      <td><p>base size passed to theme. See details.</p></td>
+    </tr>
+    <tr>
+      <th>text_size</th>
+      <td><p>text size passed to theme.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional arguments. See details.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a ggplot object. If saving a png file to disk, nothing is returned.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Data sets included in the package can be plotted however desired, but for convenience the package offers this wrapper function.
+When a package data set is paired with an appropriate plot <code>type</code>,
+a plot is created using standardized formatting based on the main <code>snapplot</code> package plot theme.
+As long as the data set has not been manipulated, its assigned attributes will inform <code>jfsp_plot</code> how to graph it.</p>
+<p>Data sets from the package and the associated available plot <code>type</code> options are as follows: ...</p>
+<p>Additional arguments can be provided. General arguments include <code>family</code> (font family).
+Arguments related to plots of a specific data set will be ignored for other data sets.
+These include <code>breaks</code>, a vector of breaks applicable to time series plots with years along the x-axis,
+<code>log = TRUE</code>, which can be used to select a log scale presentation for the burn area box plots type,
+and <code>fmo</code>, which allows for subsetting the FMO zones available in the <code>fmoba</code> data set.
+If not provided, it defaults to <code>fmo = c("Full", "Critical")</code> since these are the most important zones for work encapsulated by the package.</p>
+<p>If the <code>showtext</code> is loaded, it may be necessary to significantly increase <code>base_size</code> and/or <code>text_size</code> for the 300 dpi image saved when <code>file</code> is not <code>NULL</code>.
+Google fonts and even base R fonts may shrink significantly relative to the plot under these circumstances with showtext in effect (e.g., after calling <code>showtext_auto</code>).
+If this happens, try 20 and 60 instead of 14 and 18, respectively.
+This will be done for you automatically if you elect to name your font with the special name, <code>"gfont"</code>, and pass it as <code>family = "gfont"</code>.</p>
+<p>When saving a plot directly from <code>jfsp_plot</code> by passing a filename to <code>file</code>,
+<code>jfsp_plot</code> will internally adjust plot formatting settings in order to save a 300 dpi resolution image to disk while maintaining consistent and appropriate sizing of text and other plot elements.</p>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>jfsp_plot</span>(<span class='no'>fmoba</span>, <span class='fl'>1950</span>:<span class='fl'>2013</span>, <span class='st'>"ba_box"</span>, <span class='kw'>log</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='img'><img src='jfsp_plot-1.png' alt='' width='700' height='432.632880098887' /></div></pre>
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div id="tocnav">
-      <h2>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-        <li><a href="#jfsp-0-1-0">0.1.0</a></li>
-        <li><a href="#jfsp-0-0-0-9000">0.0.0.9000</a></li>
-      </ul>
-    </div>
-  </div>
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
 
+      <li><a href="#details">Details</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
+
+  </div>
 </div>
 
       <footer>
