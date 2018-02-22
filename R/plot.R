@@ -66,7 +66,8 @@
 #' jfsp_plot("ba_box", 1950:2013, log = TRUE)
 jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
                       file = NULL, base_size = 14, text_size = 18, ...){
-  x <- switch(type, "ba_sd" = jfsp::fmoba, "ba_box" = jfsp::fmoba, "cba" = jfsp::fmoba, "cost" = jfsp::cost,
+  x <- switch(type, "ba_sd" = jfsp::fmoba, "ba_box" = jfsp::fmoba, "cba" = jfsp::fmoba,
+              "cost" = dplyr::filter(jfsp::cost, .data[["cost"]] != "5th percentile"),
               "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "pfire" = jfsp::fbxfire)
   o <- list(...)
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
