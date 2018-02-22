@@ -12,6 +12,23 @@ authors:
     href: http://snap.uaf.edu/
     html: <img src="https://raw.githubusercontent.com/leonawicz/leonawicz.github.io/master/assets/img/snap_symbol.svg?sanitize=true" height="24" />  Scenarios Network for Alaska and Arctic Planning
 
+reference:
+- title: Package
+  contents:
+  - jfsp
+- title: Plotting
+  contents:
+  - jfsp_plot
+- title: Data sets
+  contents:
+  - cost
+  - costSummary
+  - basecost
+  - fmoba
+  - fmobaSummary
+  - cdratio
+  - fbxfire
+
 navbar:
   type: inverse
   right:
