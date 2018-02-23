@@ -1,7 +1,8 @@
-# jfsp 0.2.0.9000
+# jfsp 0.3.0
 
 * Added decadal `firesize` data set.
 * Added fire size distributions plot to `jfsp_plot` type options.
+* Refactored `jfsp_plot` to handle RCP marginalization and Treatment dropping via `by_rcp` and `by_tx`.
 * Additional minor updates.
 
 # jfsp 0.2.0
