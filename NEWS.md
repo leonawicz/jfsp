@@ -1,3 +1,9 @@
+# jfsp 0.2.0.9000
+
+* Added decadal `firesize` data set.
+* Added fire size distributions plot to `jfsp_plot` type options.
+* Additional minor updates.
+
 # jfsp 0.2.0
 
 * Refactored `jfsp_plot`, making data sets implicit so that specifying them via argument is not necessary. Reduced, reordered formal arguments.
