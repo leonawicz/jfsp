@@ -7,10 +7,16 @@ basecost <- tibble::data_frame(
   full = c(351, 257, 456, 76, 89, 312, 120)
 )
 
-# confierous:deciduous ratios
-cdratio <- readRDS("C:/github/jfsp-archive/data-raw/conif_decid_area.rds") %>%
-  rename(Set = FMO) %>%
-  group_by(Set, Tx, RCP, Year, Vegetation) %>% summarise(Val = mean(Val)) %>%
+# Alaska fire size distributions
+firesize <- readRDS("C:/github/jfsp-archive/data-raw/fs.rds") %>% select(-Set) %>%
+  mutate(Decade = Year - Year %% 10) %>% group_by(Tx, RCP, Decade, Val, Model) %>%
+  summarise(Freq = sum(Freq)) %>% summarise(Freq = mean(Freq)) %>% ungroup %>%
+  mutate(Tx = ifelse(Tx == "tx0", "Status quo", ifelse(Tx == "tx1", "Treatment 1", "Treatment 2")),
+         Val = as.integer(round(247.105 * Val))) %>% rename(FS = Val)
+
+# Alaska confierous:deciduous ratios
+cdratio <- readRDS("C:/github/jfsp-archive/data-raw/conif_decid_area.rds") %>% select(-FMO) %>%
+  group_by(Tx, RCP, Year, Vegetation) %>% summarise(Val = mean(Val)) %>%
   summarise(Val = Val[1] / Val[2]) %>% ungroup %>%
   mutate(Tx = ifelse(Tx == "tx0", "Status quo", ifelse(Tx == "tx1", "Treatment 1", "Treatment 2")))
 
@@ -67,4 +73,4 @@ costSummary <- mutate(mgmtcost, Decade = Year - Year %% 10) %>%
   summarise(`5th percentile` = quantile(value, prob = 0.05),
             Mean = mean(value), `95th percentile` = quantile(value, prob = 0.95)) %>% ungroup
 
-usethis::use_data(basecost, cdratio, fbxfire, fmoba, fmobaSummary, cost, costSummary)
+usethis::use_data(basecost, cdratio, fbxfire, fmoba, fmobaSummary, cost, costSummary, firesize)

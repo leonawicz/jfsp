@@ -39,9 +39,9 @@
 
 #' Coniferous:deciduous ratios.
 #'
-#' A data frame of annual Alaska coniferous:deciduous landscape cover area ratios computed from ALFRESCO model output, by ALFRESCO simulation set, FMO treatment and RCP.
+#' A data frame of annual Alaska coniferous:deciduous landscape cover area ratios computed from ALFRESCO model output, by ALFRESCO FMO treatment and RCP.
 #'
-#' @format A data frame with 580 rows and 5 columns.
+#' @format A data frame with 580 rows and 4 columns.
 "cdratio"
 
 #' Probability of fire near Fairbanks, Alaska.
@@ -51,3 +51,12 @@
 #'
 #' @format A data frame with 1,900 rows and 5 columns.
 "fbxfire"
+
+#' Alaska fire sizes.
+#'
+#' A data frame of the decadal distirbution of fire sizes based on ALFRESCO simulation output, by FMO treatment and RCP.
+#' The FS column gives the fire size in acres and the Freq column gives the frequency of fires that size over a decade and multiple ALFRESCO simulation replicates.
+#' Frequencies should be treated as simple weights and can be rescaled if desired. Freq is an average frequency across GCMs during the projected period, 2014 - 2099, so may contain decimals.
+#'
+#' @format A data frame with 63,200 rows and 5 columns.
+"firesize"
