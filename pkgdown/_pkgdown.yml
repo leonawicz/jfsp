@@ -28,6 +28,7 @@ reference:
   - fmobaSummary
   - cdratio
   - fbxfire
+  - firesize
 
 navbar:
   type: inverse

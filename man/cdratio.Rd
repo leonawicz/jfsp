@@ -4,11 +4,11 @@
 \name{cdratio}
 \alias{cdratio}
 \title{Coniferous:deciduous ratios.}
-\format{A data frame with 580 rows and 5 columns.}
+\format{A data frame with 580 rows and 4 columns.}
 \usage{
 cdratio
 }
 \description{
-A data frame of annual Alaska coniferous:deciduous landscape cover area ratios computed from ALFRESCO model output, by ALFRESCO simulation set, FMO treatment and RCP.
+A data frame of annual Alaska coniferous:deciduous landscape cover area ratios computed from ALFRESCO model output, by ALFRESCO FMO treatment and RCP.
 }
 \keyword{datasets}

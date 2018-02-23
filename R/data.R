@@ -54,7 +54,7 @@
 
 #' Alaska fire sizes.
 #'
-#' A data frame of the decadal distirbution of fire sizes based on ALFRESCO simulation output, by FMO treatment and RCP.
+#' A data frame of the decadal distribution of fire sizes based on ALFRESCO simulation output, by FMO treatment and RCP.
 #' The FS column gives the fire size in acres and the Freq column gives the frequency of fires that size over a decade and multiple ALFRESCO simulation replicates.
 #' Frequencies should be treated as simple weights and can be rescaled if desired. Freq is an average frequency across GCMs during the projected period, 2014 - 2099, so may contain decimals.
 #'

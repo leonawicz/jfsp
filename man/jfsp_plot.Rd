@@ -39,18 +39,20 @@ Stock plots use standardized formatting similar to the main \code{snapplot} pack
 Available stock plots include:
 
 \describe{
-  \item{\code{ba_sd}}{10-year moving average FMO zone burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
+  \item{\code{ba_sd}}{10-year moving average FMO zone burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
   \item{\code{ba_box}}{FMO zone burn area aggregate period box plots. Optional arguments: \code{alaska = TRUE}, \code{log = TRUE}, \code{fmo}.}
   \item{\code{cba}}{FMO zone cumulative burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
   \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series.}
   \item{\code{cdratio}}{Alaska coniferous:deciduous ratios annual time series. Optional arguments: \code{breaks}.}
   \item{\code{pfire}}{Probability of fire near Fairbanks as a function of radial buffer distance. The \code{years} argument is ignored for this plot.}
+  \item{\code{fs_box}}{Alaska fire size distribution decadal box plots. Optional arguments: \code{log}.}
 }
 
 Additional arguments can be provided. General arguments include \code{family} (font family).
 Arguments related to specific plot types are ignored when not applicable.
 \code{alaska = TRUE} performs statewide aggregation over all FMO zones. \code{log = TRUE} applies a log scale transformation.
+\code{n} is an integer for the number of years in the moving average window for \code{ba_box}, only applicable when \code{alaska = TRUE}.
 \code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
 \code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
 If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
