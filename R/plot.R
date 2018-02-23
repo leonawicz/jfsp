@@ -245,6 +245,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
       gde <- ggplot2::guides(colour = ggplot2::guide_legend(order = 1))
       pos <- "identity"
     } else pos <- ggplot2::position_jitterdodge(jitter.width = 0.5, dodge.width = 0.75)
+    subtitle <- "By decade, treatment and RCP"
     if(!is.null(o$log) && o$log == TRUE){
       y_var <- "log(FS)"
       y_lab <- "Fire size (Log acres)"
@@ -261,8 +262,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
       ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), pch = 21, alpha = 0.5, position = pos)
     p <- p + sfm + scm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_discrete(labels = paste0(unique(x[["Decade"]]), "s")) +
-      ggplot2::labs(title = title, subtitle = "By decade, treatment and RCP",
-                    x = "Decade", y = y_lab)
+      ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = y_lab)
   }
   if(is.null(file)) return(p)
   grDevices::png(file, width = 3000, height = 2000, res = 300, type = "cairo")
