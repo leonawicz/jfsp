@@ -185,12 +185,18 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
       ggplot2::labs(title = title, subtitle = "Mean and 90% confidence interval by decade, treatment and RCP",
                     x = "Decade", y = cost_lab)
   } else if(type == "cdratio"){
+    if(is_hist){
+      lty_var <- NULL
+      clr_var <- NULL
+      gde <- ggplot2::guides(colour = ggplot2::guide_legend(order = 1))
+    }
     subtitle <- ifelse(is_hist, "Alaska historical modeled outputs",
                        ifelse(is_proj, "Alaska 5-model average projected outputs",
                               "Alaska historical modeled and 5-model average projected outputs"))
-    p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "Val", colour = "RCP", linetype = "Tx")) +
-      ggplot2::geom_line(size = 1) +
-      slm + scm + thm + .thm_adj("topright", "vertical", tsize) + gde +
+    p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "Val", colour = clr_var, linetype = lty_var)) +
+      ggplot2::geom_line(size = 1)
+    if(!is_hist) p <- p + slm
+    p <- p + scm + thm + .thm_adj("topright", "vertical", tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), expand = c(0, 0), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "coniferous:deciduous ratio"),
                     subtitle = subtitle, y = "Ratio")
