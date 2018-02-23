@@ -1,33 +1,72 @@
-.jfsp_palette <- function(years, by_rcp){
+.jfsp_palette <- function(years, by_rcp, by_tx){
   hist_col <- c("black", "orange", "purple")
-  all_col <- if(by_rcp) c("black", "cornflowerblue", "orange", "firebrick1") else "black"
+  if(by_rcp){
+    all_col <- c("black", "cornflowerblue", "orange", "firebrick1")
+  } else if(by_tx){
+    all_col <- hist_col
+  } else {
+    all_col <- "black"
+  }
   proj_col <- if(by_rcp) all_col[-1] else all_col
   if(all(years <= 2013)) hist_col else if(all(years > 2013)) proj_col else all_col
 }
 
 .fmo_combine <- function(x, n = 10){
-  dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["RCP"]], .data[["Year"]]) %>%
+  if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
+  dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["Year"]], add = TRUE) %>%
     dplyr::summarise(BA = sum(.data[["BA"]])) %>%
     dplyr::mutate(CBA = cumsum(.data[["BA"]]), BA_sd_ma = RcppRoll::roll_sd(.data[["BA"]], n, fill = NA)) %>%
     dplyr::ungroup()
 }
 
-.prep_fs <- function(x, n_samples = 1000, interp = FALSE, n_interp = 1e5, fit_density = FALSE, density_args = list()){
-  x <- dplyr::group_by(x, .data[["Tx"]], .data[["RCP"]], .data[["Decade"]])
+.rcp_combine <- function(x, type){
+  if(type %in% c("ba_sd", "ba_box", "cba")) x <- dplyr::ungroup(x) %>%
+      dplyr::group_by(.data[["Set"]], .data[["Tx"]], .data[["FMO"]], .data[["Year"]]) %>%
+      dplyr::summarise(BA = mean(.data[["BA"]])) %>%
+      dplyr::mutate(CBA = cumsum(.data[["BA"]]), BA_sd_ma10 = RcppRoll::roll_sd(.data[["BA"]], 10, fill = NA)) %>%
+      dplyr::ungroup()
+  if(type == "cost") x <- dplyr::ungroup(x) %>%
+      dplyr::group_by(.data[["Tx"]], .data[["Year"]], .data[["cost"]]) %>%
+      dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
+  if(type == "cost_dec") x <- dplyr::ungroup(x) %>%
+      dplyr::group_by(.data[["Set"]], .data[["Tx"]], .data[["Decade"]]) %>%
+      dplyr::summarise(`5th percentile` = mean(.data[["5th percentile"]]),
+                       Mean = mean(.data[["Mean"]]),
+                       `95th percentile` = mean(.data[["95th percentile"]])) %>% dplyr:: ungroup()
+  if(type == "cdratio") x <- dplyr::ungroup(x) %>%
+      dplyr::group_by(.data[["Tx"]], .data[["Year"]]) %>%
+      dplyr::summarise(Val = mean(.data[["Val"]])) %>% dplyr:: ungroup()
+  if(type == "pfire") x <- dplyr::ungroup(x) %>%
+      dplyr::group_by(.data[["Tx"]], .data[["Years"]], .data[["buffer"]]) %>%
+      dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
+  if(type == "fs_box") x <- dplyr::ungroup(x) %>%
+      dplyr::group_by(.data[["Tx"]], .data[["Decade"]], .data[["FS"]]) %>%
+      dplyr::summarise(Freq = mean(.data[["Freq"]])) %>% dplyr:: ungroup()
+  x
+}
+
+.prep_fs <- function(x, n_samples = 100, interp = FALSE, n_interp = 1e5, fit_density = FALSE, density_args = list()){
+  if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
+  x <- dplyr::group_by(x, .data[["Tx"]], .data[["Decade"]], add = TRUE)
   if(interp) x <- dplyr::do(x, tibble::data_frame(
     FS = stats::approx(.[["FS"]], .[["Freq"]],
                       xout = seq(min(.[["FS"]]), max(.[["FS"]]), length.out = n_interp))$x,
     Freq = stats::approx(.[["FS"]], .[["Freq"]],
                      xout = seq(min(.[["FS"]]), max(.[["FS"]]), length.out = n_interp))$y))
-  x <- dplyr::ungroup(x) %>% dplyr::group_by(.data[["Tx"]], .data[["RCP"]], .data[["Decade"]]) %>%
+  x <- dplyr::ungroup(x)
+  if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
+  x <- dplyr::group_by(x, .data[["Tx"]], .data[["Decade"]], add = TRUE) %>%
     dplyr::do(tibble::data_frame(FS = sample(.[["FS"]], n_samples, replace = TRUE, prob = .[["Freq"]]))) %>%
     dplyr::ungroup()
   if(fit_density){
-    x <- dplyr::group_by(x, .data[["Tx"]], .data[["RCP"]], .data[["Decade"]])
+    if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
+    x <- dplyr::group_by(x, .data[["Tx"]], .data[["Decade"]])
     x <- dplyr::do(x, tibble::data_frame(
       FS = do.call(stats::density, c(list(x = .[["FS"]]), density_args))$x,
       Prob = do.call(stats::density, c(list(x = .[["FS"]]), density_args))$y))
-    x <- dplyr::ungroup(x) %>% dplyr::group_by(.data[["Tx"]], .data[["RCP"]], .data[["Decade"]]) %>%
+    x <- dplyr::ungroup(x)
+    if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
+    x <- dplyr::group_by(x, .data[["Tx"]], .data[["Decade"]]) %>%
       dplyr::do(tibble::data_frame(FS = sample(.[["FS"]], n_samples, replace = TRUE, prob = .[["Prob"]]))) %>%
       dplyr::ungroup()
   }
@@ -77,6 +116,7 @@
 #' @param type character, the type of plot to make, based on a particular package data set. See details.
 #' @param years numeric, vector of consecutive years. The maximum range is \code{1950:2099}. See details.
 #' @param by_rcp logical, condition on RCP, defaults to \code{TRUE}. Otherwise marginalize over RCP. This applied to RCP-driven years, 2014 - 2099.
+#' @param by_tx logical, if \code{FALSE}, then treatments are dropped and only status quo (control) data are plotted.
 #' @param col optional vector of colors to override the defaults built into \code{jfsp_plot}.
 #' @param file character, if provided, the plot is saved to disk. Otherwise, it is plotted in the R session graphics device. See details.
 #' @param base_size base size passed to theme. See details.
@@ -88,12 +128,14 @@
 #'
 #' @examples
 #' jfsp_plot("ba_box", 1950:2013, log = TRUE)
-jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
+jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, col = NULL,
                       file = NULL, base_size = 14, text_size = 18, ...){
   x <- switch(type, "ba_sd" = jfsp::fmoba, "ba_box" = jfsp::fmoba, "cba" = jfsp::fmoba,
               "cost" = dplyr::filter(jfsp::cost, .data[["cost"]] != "5th percentile"),
               "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "pfire" = jfsp::fbxfire,
               "fs_box" = jfsp::firesize)
+  if(!by_tx) x <- dplyr::filter(x, .data[["Tx"]] == "Status quo")
+  if(!by_rcp) x <- .rcp_combine(x, type)
   o <- list(...)
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
   family <- if(is.null(o$family)) "sans" else o$family
@@ -106,15 +148,20 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
   if(is.null(years)) years <- 1950:2099
   if(any(years < 1950 | years > 2099)) stop("Years must be in 1950:2099 for JFSP data.")
   if(is.null(col)){
-    col <- .jfsp_palette(years, by_rcp)
+    col <- .jfsp_palette(years, by_rcp, by_tx)
     if(type == "ba_box") col <- c("black", "orange")
   }
   scm <- ggplot2::scale_color_manual(values = col)
   sfm <- ggplot2::scale_fill_manual(values = col)
   slm <- ggplot2::scale_linetype_manual(values = 1:2)
   thm <- .thm(base_size = bsize, base_family = family)
-  gde <- ggplot2::guides(colour = ggplot2::guide_legend(order = 1), fill = ggplot2::guide_legend(order = 1),
-                linetype = ggplot2::guide_legend(order = 2, override.aes = list(linetype = c("solid", "22"))))
+  if(!by_rcp & !by_tx){
+    gde <- ggplot2::guides(colour = ggplot2::guide_legend(order = 1))
+  } else {
+    gde <- ggplot2::guides(
+      colour = ggplot2::guide_legend(order = 1), fill = ggplot2::guide_legend(order = 1),
+      linetype = ggplot2::guide_legend(order = 2, override.aes = list(linetype = c("solid", "22"))))
+  }
   if("Year" %in% names(x)) x <- dplyr::filter(x, .data[["Year"]] %in% years)
   if("Decade" %in% names(x)) x <- dplyr::filter(x, .data[["Decade"]] %in% years)
   is_hist <- all(years <= 2013)
@@ -133,14 +180,22 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
     clr_var <- "Set"
     grp_var <- "interaction(Set, Tx)"
   } else {
-    clr_var <- "RCP"
-    lty_var <- "Tx"
+    clr_var <- ifelse(by_rcp, "RCP", ifelse(by_tx, "Tx", "none"))
+    if(clr_var == "none") clr_var <- NULL
+    lty_var <- if(by_rcp & by_tx) "Tx" else NULL
     if("Set" %in% names(x)) x <- dplyr::filter(x, .data[["Set"]] != "Observed")
   }
 
   if(type == "ba_sd"){
     y_var <- ifelse(alaska, "BA_sd_ma", "BA_sd_ma10")
-    y_lab <- ifelse(alaska, paste0(n, "-year MA burn area SD"), "10-year MA burn area SD")
+    if(!alaska) n <- 10
+    y_lab <- paste0(n, "-year MA burn area SD")
+    subtitle <- paste0(n, "-year moving average")
+    subtitle <- ifelse(is_hist, subtitle,
+                       ifelse(by_rcp & by_tx, paste(subtitle, "by treatment and RCP"),
+                              ifelse(by_rcp, paste(subtitle, "by RCP"),
+                                     ifelse(by_tx, paste(subtitle, "by treatment"),
+                                            subtitle))))
     if(is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", y_var, color = clr_var,
                                                    fill = clr_var, group = grp_var))
     if(!is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", y_var, color = clr_var,
@@ -150,7 +205,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
     p <- p + scm + sfm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), expand = c(0, 0), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "inter-annual variability in burn area"),
-           subtitle = "10-year moving average by treatment and RCP", y = y_lab)
+           subtitle = subtitle, y = y_lab)
   } else if(type == "cba"){
     cba_lab <- "Cumulative burn area (acres)"
     subtitle <- ifelse(is_hist, "Historical observed and modeled",
@@ -176,11 +231,21 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
       y_var <- "BA"
       ba_lab <- "Burn area (acres)"
     }
-    clr_var <- if(is_hist) "Set" else "Tx"
-    p <- ggplot2::ggplot(x, ggplot2::aes_string("RCP", y_var, colour = clr_var)) +
+    if(length(unique(x[["Set"]])) > 1 & is_hist){
+      clr_var <- "Set"
+    } else {
+      clr_var <- ifelse(is.null(clr_var), "none", ifelse(clr_var == "RCP", ifelse(by_tx, "Tx", "none"), clr_var))
+      if(clr_var == "none") clr_var <- NULL
+    }
+    if(is.null(clr_var)){
+      pos <- ggplot2::position_jitter(0.2)
+    } else {
+      pos <- ggplot2::position_jitterdodge(jitter.width = 0.2, dodge.width = 0.75)
+    }
+    x_var <- ifelse(by_rcp, "RCP", "Tx")
+    p <- ggplot2::ggplot(x, ggplot2::aes_string(x_var, y_var, colour = clr_var)) +
       ggplot2::geom_boxplot(outlier.shape = NA) +
-      ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), pch = 21, alpha = 0.5,
-                 position = ggplot2::position_jitterdodge(jitter.width = 0.5, dodge.width = 0.75))
+      ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), pch = 21, alpha = 0.5, position = pos)
     if(!alaska) p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y")
     p <- p + sfm + scm + thm + .thm_adj("topright", text_size = tsize) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "annual burn area"),
@@ -188,12 +253,27 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
   } else if(type == "cost"){
     cost_lab <- "Cost (Millions of $)"
     subtitle <- ifelse(is_hist, "Mean and 95th percentile",
-                       "Mean and 95th percentile by treatment and RCP")
+                       ifelse(by_rcp & by_tx, "Mean and 95th percentile by treatment and RCP",
+                              ifelse(by_rcp, "Mean and 95th percentile by RCP",
+                                     ifelse(by_tx, "Mean and 95th percentile by treatment",
+                                            "Mean and 95th percentile"))))
+    if(!is_hist & ((by_rcp & !by_tx) | (!by_rcp & by_tx))){
+      lty_var <- "cost"
+    } else if(!is_hist & !by_rcp & !by_tx){
+      lty_var <- NULL
+      clr_var <- "cost"
+      if(length(col) < 2){
+        col <- c("black", "orange")
+        scm <- ggplot2::scale_color_manual(values = col)
+        sfm <- ggplot2::scale_fill_manual(values = col)
+      }
+    }
     if(is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "value", linetype = "cost")) +
       ggplot2::geom_line() + ggplot2::geom_point()
     if(!is_hist)
       p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "value", colour = clr_var, linetype = lty_var)) +
-      ggplot2::geom_line() + ggplot2::geom_point(shape = 21) + ggplot2::facet_wrap(stats::as.formula("~cost"))
+      ggplot2::geom_line() + ggplot2::geom_point(shape = 21)
+    if(!is_hist & by_rcp & by_tx) p <- p + ggplot2::facet_wrap(stats::as.formula("~cost"))
     p <- p + thm + sfm + scm + slm + .thm_adj("topleft", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "fire management cost"),
@@ -203,6 +283,10 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
     title <- ifelse(is_hist, "Historical annual fire management costs",
                     ifelse(is_proj, "annual fire management costs",
                            "Historical and projected annual fire management costs"))
+    subtitle <- ifelse(by_rcp & by_tx, "Mean and 90% confidence interval by decade, treatment and RCP",
+                       ifelse(by_rcp, "Mean and 90% confidence interval by decade and RCP",
+                              ifelse(by_tx, "Mean and 90% confidence interval by decade and treatment",
+                                     "Mean and 90% confidence interval by decade")))
     p <- ggplot2::ggplot(x, ggplot2::aes_string("factor(Decade)", "Mean", colour = clr_var,
                                        fill = clr_var, linetype = lty_var)) +
       ggplot2::geom_errorbar(ggplot2::aes_string(ymin = "`5th percentile`", ymax = "`95th percentile`"),
@@ -211,8 +295,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
                           position = ggplot2::position_dodge(width = 0.5)) +
       sfm + scm + slm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_discrete(labels = paste0(unique(x[["Decade"]]), "s")) +
-      ggplot2::labs(title = title, subtitle = "Mean and 90% confidence interval by decade, treatment and RCP",
-                    x = "Decade", y = cost_lab)
+      ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = cost_lab)
   } else if(type == "cdratio"){
     if(is_hist){
       lty_var <- NULL
@@ -230,7 +313,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
       ggplot2::labs(title = paste(min(years), "-", max(years), "coniferous:deciduous ratio"),
                     subtitle = subtitle, y = "Ratio")
   } else if(type == "pfire"){
-    p <- ggplot2::ggplot(x, ggplot2::aes_string("buffer", "value", colour = "RCP", linetype = "Tx")) +
+    p <- ggplot2::ggplot(x, ggplot2::aes_string("buffer", "value", colour = clr_var, linetype = lty_var)) +
       ggplot2::geom_line(size = 1) +
       ggplot2::labs(title = "Simulated fire over time around Fairbanks",
                     subtitle = "Over multiple time periods", x = "Distance from center (km)", y = "P(Fire)") +
@@ -239,17 +322,22 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
       ggplot2::facet_wrap(stats::as.formula("~Years"))
   } else if(type == "fs_box"){
     x <- .prep_fs(x)
+    pos <- ggplot2::position_jitter(0.2)
     if(is_hist){
       lty_var <- NULL
       clr_var <- NULL
       gde <- ggplot2::guides(colour = ggplot2::guide_legend(order = 1))
-      pos <- "identity"
-    } else pos <- ggplot2::position_jitterdodge(jitter.width = 0.5, dodge.width = 0.75)
-    subtitle <- "By decade, treatment and RCP"
+    }
+    if(!is.null(clr_var)) pos <- ggplot2::position_jitterdodge(0.2)
+    subtitle <- ifelse(is_hist, "none",
+                       ifelse(by_rcp & by_tx, "By decade, treatment and RCP",
+                              ifelse(by_rcp, "By decade and RCP",
+                                     ifelse(by_tx, "By decade and treatment", "none"))))
+    if(subtitle == "none") subtitle <- NULL
     if(!is.null(o$log) && o$log == TRUE){
       y_var <- "log(FS)"
       y_lab <- "Fire size (Log acres)"
-      subtitle <- paste0(subtitle, ". Log scale.")
+      subtitle <- ifelse(is.null(subtitle), "Log scale", paste0(subtitle, ". Log scale."))
     } else {
       y_var <- "FS"
       y_lab <- "Fire size (acres)"
@@ -260,9 +348,15 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
     p <- ggplot2::ggplot(x, ggplot2::aes_string("factor(Decade)", y_var, colour = clr_var)) +
       ggplot2::geom_boxplot(outlier.shape = NA) +
       ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), pch = 21, alpha = 0.5, position = pos)
-    p <- p + sfm + scm + thm + .thm_adj("topright", text_size = tsize) + gde +
+    p <- p + sfm + scm + thm + gde +
       ggplot2::scale_x_discrete(labels = paste0(unique(x[["Decade"]]), "s")) +
       ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = y_lab)
+    if(by_rcp & by_tx){
+      p <- p + ggplot2::facet_wrap(stats::as.formula("~Tx"), scales = "fixed") +
+        ggplot2::coord_flip() + .thm_adj("bottomright", "vertical", text_size = tsize)
+    } else {
+      p <- p + .thm_adj("topright", text_size = tsize)
+    }
   }
   if(is.null(file)) return(p)
   grDevices::png(file, width = 3000, height = 2000, res = 300, type = "cairo")
@@ -309,8 +403,8 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
 }
 
 .thm_adj <- function(position, direction = "horizontal", text_size = 14){
-  pos <- switch(position, topright = c(1, 1), topleft = c(0, 1))
-  just <- switch(position, topright = "right", topleft = "left")
+  pos <- switch(position, topright = c(1, 1), topleft = c(0, 1), bottomright = c(1, 0))
+  just <- switch(position, topright = "right", topleft = "left", bottomright = "right")
   ggplot2::theme(plot.margin = ggplot2::unit(c(0.5, 1.5, 0.5, 0.5), "lines"),
                  text = ggplot2::element_text(size = text_size),
                  legend.position = pos, legend.box.just = just, legend.direction = direction,
