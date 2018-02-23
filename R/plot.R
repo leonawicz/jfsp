@@ -20,7 +20,7 @@
     Freq = stats::approx(.[["FS"]], .[["Freq"]],
                      xout = seq(min(.[["FS"]]), max(.[["FS"]]), length.out = n_interp))$y))
   x <- dplyr::ungroup(x) %>% dplyr::group_by(.data[["Tx"]], .data[["RCP"]], .data[["Decade"]]) %>%
-    do(tibble::data_frame(FS = sample(.[["FS"]], n_samples, replace = TRUE, prob = .[["Freq"]]))) %>%
+    dplyr::do(tibble::data_frame(FS = sample(.[["FS"]], n_samples, replace = TRUE, prob = .[["Freq"]]))) %>%
     dplyr::ungroup()
   if(fit_density){
     x <- dplyr::group_by(x, .data[["Tx"]], .data[["RCP"]], .data[["Decade"]])
@@ -28,7 +28,7 @@
       FS = do.call(stats::density, c(list(x = .[["FS"]]), density_args))$x,
       Prob = do.call(stats::density, c(list(x = .[["FS"]]), density_args))$y))
     x <- dplyr::ungroup(x) %>% dplyr::group_by(.data[["Tx"]], .data[["RCP"]], .data[["Decade"]]) %>%
-      do(tibble::data_frame(FS = sample(.[["FS"]], n_samples, replace = TRUE, prob = .[["Prob"]]))) %>%
+      dplyr::do(tibble::data_frame(FS = sample(.[["FS"]], n_samples, replace = TRUE, prob = .[["Prob"]]))) %>%
       dplyr::ungroup()
   }
   x
