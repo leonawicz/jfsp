@@ -4,8 +4,8 @@
 \alias{jfsp_plot}
 \title{Create plots based on various JFSP data sets}
 \usage{
-jfsp_plot(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
-  file = NULL, base_size = 14, text_size = 18, ...)
+jfsp_plot(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE,
+  col = NULL, file = NULL, base_size = 14, text_size = 18, ...)
 }
 \arguments{
 \item{type}{character, the type of plot to make, based on a particular package data set. See details.}
@@ -13,6 +13,8 @@ jfsp_plot(type = NULL, years = NULL, by_rcp = TRUE, col = NULL,
 \item{years}{numeric, vector of consecutive years. The maximum range is \code{1950:2099}. See details.}
 
 \item{by_rcp}{logical, condition on RCP, defaults to \code{TRUE}. Otherwise marginalize over RCP. This applied to RCP-driven years, 2014 - 2099.}
+
+\item{by_tx}{logical, if \code{FALSE}, then treatments are dropped and only status quo (control) data are plotted.}
 
 \item{col}{optional vector of colors to override the defaults built into \code{jfsp_plot}.}
 
