@@ -25,4 +25,5 @@ Imports:
     magrittr,
     ggplot2,
     tibble,
-    RcppRoll
+    RcppRoll,
+    purrr
