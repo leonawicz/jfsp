@@ -1,5 +1,9 @@
 library(dplyr)
 
+f <- function(x) switch(x, historical = "Historical",
+                        rcp45 = "RCP 4.5", rcp60 = "RCP 6.0", rcp85 = "RCP 8.5")
+lev <- c("Historical", "RCP 4.5", "RCP 6.0", "RCP 8.5")
+
 basecost <- tibble::data_frame(
   limited = c(13.9, 0.3, 7.6, 92.0, 10.6, 8.1, 12.0),
   modified = c(16, 22, 164, 356, 31, 56, 534),
@@ -17,18 +21,19 @@ firesize <- readRDS("C:/github/jfsp-archive/data-raw/fs.rds") %>% select(-Set) %
 # Alaska confierous:deciduous ratios
 cdratio <- readRDS("C:/github/jfsp-archive/data-raw/conif_decid_area.rds") %>% select(-FMO) %>%
   group_by(Tx, RCP, Year, Vegetation) %>% summarise(Val = mean(Val)) %>%
-  summarise(Val = Val[1] / Val[2]) %>% ungroup %>%
+  summarise(Val = Val[1] / Val[2]) %>% ungroup %>% rename(value = Val) %>%
   mutate(Tx = ifelse(Tx == "tx0", "Status quo", ifelse(Tx == "tx1", "Treatment 1", "Treatment 2")))
 
 # Robust annual P(Fire) near Fairbanks, Alaska
-fbxfire <- readRDS("C:/github/jfsp-archive/data-raw/fire_prob_fbks_simplified.rds")
+fbxfire <- readRDS("C:/github/jfsp-archive/data-raw/fire_prob_fbks_simplified.rds") %>%
+  mutate(RCP = factor(sapply(as.character(RCP), f), levels = lev))
 
 gcms <- c("CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3")
 fmoba <- readRDS("C:/github/jfsp-archive/data-raw/ba_fmo2.rds")
 sets <- strsplit(fmoba$Set, "\\.")
 fmoba <- mutate(fmoba, Set = sapply(sets, "[", 1), RCP = sapply(sets, "[", 2),
                 Model = gsub("CRU32", "CRU 3.2", sapply(sets, "[", 3))) %>%
-  filter(Tx != "none") %>%
+  filter(Tx != "none") %>% mutate(RCP = factor(sapply(as.character(RCP), f), levels = lev)) %>%
   mutate(Tx = ifelse(is.na(Tx) & Set == "fmo99s95i", "Status quo",
                      ifelse(is.na(Tx), "No management",
                             ifelse(Tx == "tx0", "Status quo",
@@ -36,9 +41,10 @@ fmoba <- mutate(fmoba, Set = sapply(sets, "[", 1), RCP = sapply(sets, "[", 2),
                                           ifelse(Tx == "tx2", "Treatment 2",
                                                  ifelse(Tx == "none", "No management", Tx)))))))
 fmoba2 <- mutate(readRDS("C:/github/jfsp-archive/data-raw/ba_fmo.rds"),
-             Set = substr(Set, 1, 9), RCP = "historical", Model = "Observed", Tx = "Status quo")
+             Set = substr(Set, 1, 9), RCP = factor("Historical", levels = lev),
+             Model = "Observed", Tx = "Status quo")
 fmoba <- bind_rows(fmoba, fmoba2) %>%
-  mutate(Set = factor(Set, levels = c("Observed", "fmo99s95i")), RCP = factor(RCP),
+  mutate(Set = factor(Set, levels = c("Observed", "fmo99s95i")),
          Model = factor(Model, levels = c("Observed", "CRU 3.2", gcms)),
          Tx = factor(Tx, levels = c("No management", "Status quo", "Treatment 1", "Treatment 2"))) %>%
   select(c(1, 2, 10:11, 3:9)) %>% mutate_at(6:11, ~round(247.105 * .x)) %>%
