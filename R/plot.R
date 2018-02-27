@@ -35,7 +35,7 @@
                        `95th percentile` = mean(.data[["95th percentile"]])) %>% dplyr:: ungroup()
   if(type == "cdratio") x <- dplyr::ungroup(x) %>%
       dplyr::group_by(.data[["Tx"]], .data[["Year"]]) %>%
-      dplyr::summarise(Val = mean(.data[["Val"]])) %>% dplyr:: ungroup()
+      dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
   if(type == "pfire") x <- dplyr::ungroup(x) %>%
       dplyr::group_by(.data[["Tx"]], .data[["Years"]], .data[["buffer"]]) %>%
       dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
@@ -43,6 +43,20 @@
       dplyr::group_by(.data[["Tx"]], .data[["Decade"]], .data[["FS"]]) %>%
       dplyr::summarise(Freq = mean(.data[["Freq"]])) %>% dplyr:: ungroup()
   x
+}
+
+.rcp_triplicate <- function(x, type, n){
+  if(type != "ba_sd") return(x)
+  x <- dplyr::ungroup(x) %>% dplyr::filter(.data[["Set"]] != "Observed")
+  rcp <- c("RCP 4.5", "RCP 6.0", "RCP 8.5")
+  x0 <- purrr::map(factor(rcp, levels = c("Historical", rcp)),
+                   ~dplyr::filter(x, .data[["RCP"]] == "Historical") %>% dplyr::mutate(RCP = .x)) %>%
+    dplyr::bind_rows()
+  dplyr::bind_rows(x0, x) %>% dplyr::filter(.data[["RCP"]] != "Historical") %>%
+    dplyr::group_by(.data[["Set"]], .data[["Tx"]], .data[["RCP"]], .data[["FMO"]]) %>%
+    dplyr::arrange(.data[["Set"]], .data[["Tx"]], .data[["RCP"]], .data[["FMO"]], .data[["Year"]]) %>%
+    dplyr::select(-.data[["BA_sd_ma10"]]) %>%
+    dplyr::mutate(BA_sd_ma = RcppRoll::roll_sd(.data[["BA"]], n, fill = NA)) %>% dplyr::ungroup()
 }
 
 .prep_fs <- function(x, n_samples = 100, interp = FALSE, n_interp = 1e5, fit_density = FALSE, density_args = list()){
@@ -87,7 +101,7 @@
 #' Available stock plots include:
 #'
 #' \describe{
-#'   \item{\code{ba_sd}}{10-year moving average FMO zone burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
+#'   \item{\code{ba_sd}}{10-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
 #'   \item{\code{ba_box}}{FMO zone burn area aggregate period box plots. Optional arguments: \code{alaska = TRUE}, \code{log = TRUE}, \code{fmo}.}
 #'   \item{\code{cba}}{FMO zone cumulative burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
 #'   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
@@ -100,7 +114,8 @@
 #' Additional arguments can be provided. General arguments include \code{family} (font family).
 #' Arguments related to specific plot types are ignored when not applicable.
 #' \code{alaska = TRUE} performs statewide aggregation over all FMO zones. \code{log = TRUE} applies a log scale transformation.
-#' \code{n} is an integer for the number of years in the moving average window for \code{ba_box}, only applicable when \code{alaska = TRUE}.
+#' \code{continuous = TRUE} avoids a break in the time series where historical meets RCPs by triplicating the historical data and merging with each RCP series, only for \code{ba_sd}.
+#' \code{n} is an integer for the number of years in the moving average window for \code{ba_box}, only applicable when \code{alaska = TRUE} or \code{continuous = TRUE}.
 #' \code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
 #' \code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
 #' If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
@@ -135,9 +150,12 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
               "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "pfire" = jfsp::fbxfire,
               "fs_box" = jfsp::firesize)
   if(!by_tx) x <- dplyr::filter(x, .data[["Tx"]] == "Status quo")
-  if(!by_rcp) x <- .rcp_combine(x, type)
   o <- list(...)
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
+  continuous <- ifelse(!is.null(o$continuous) && o$continuous, TRUE, FALSE)
+  n <- ifelse(!alaska & !continuous, 10, ifelse(is.null(o$n), 10, o$n))
+  if(continuous) x <- .rcp_triplicate(x, type, n)
+  if(!by_rcp) x <- .rcp_combine(x, type)
   family <- if(is.null(o$family)) "sans" else o$family
   tsize <- text_size
   bsize <- base_size
@@ -150,6 +168,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   if(is.null(col)){
     col <- .jfsp_palette(years, by_rcp, by_tx)
     if(type == "ba_box") col <- c("black", "orange")
+    if(type == "ba_sd" & continuous & by_rcp) col <- c("cornflowerblue", "orange", "firebrick1")
   }
   scm <- ggplot2::scale_color_manual(values = col)
   sfm <- ggplot2::scale_fill_manual(values = col)
@@ -169,7 +188,6 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   breaks <- if(is.null(o$breaks)) ggplot2::waiver() else o$breaks
   if(type %in% c("ba_sd", "cba", "ba_box")){
     if(alaska){
-      n <- if(is.null(o$n)) 10 else o$n
       x <- .fmo_combine(x, n)
     } else {
       fmo <- if(is.null(o$fmo)) c("Full", "Critical") else o$fmo
@@ -187,8 +205,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   }
 
   if(type == "ba_sd"){
-    y_var <- ifelse(alaska, "BA_sd_ma", "BA_sd_ma10")
-    if(!alaska) n <- 10
+    y_var <- ifelse(alaska | continuous, "BA_sd_ma", "BA_sd_ma10")
     y_lab <- paste0(n, "-year MA burn area SD")
     subtitle <- paste0(n, "-year moving average")
     subtitle <- ifelse(is_hist, subtitle,
@@ -305,7 +322,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
     subtitle <- ifelse(is_hist, "Alaska historical modeled outputs",
                        ifelse(is_proj, "Alaska 5-model average projected outputs",
                               "Alaska historical modeled and 5-model average projected outputs"))
-    p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "Val", colour = clr_var, linetype = lty_var)) +
+    p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "value", colour = clr_var, linetype = lty_var)) +
       ggplot2::geom_line(size = 1)
     if(!is_hist) p <- p + slm
     p <- p + scm + thm + .thm_adj("topright", "vertical", tsize) + gde +
