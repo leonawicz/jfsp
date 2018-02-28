@@ -202,7 +202,8 @@
     
 
     <pre class="usage"><span class='fu'>jfsp_plot</span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>years</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>by_rcp</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>by_tx</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>col</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>base_size</span> <span class='kw'>=</span> <span class='fl'>14</span>, <span class='kw'>text_size</span> <span class='kw'>=</span> <span class='fl'>18</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>col</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>base_size</span> <span class='kw'>=</span> <span class='fl'>14</span>, <span class='kw'>text_size</span> <span class='kw'>=</span> <span class='fl'>18</span>,
+  <span class='kw'>pt_size</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -240,6 +241,10 @@
       <td><p>text size passed to theme.</p></td>
     </tr>
     <tr>
+      <th>pt_size</th>
+      <td><p>override default size for points in applicable plot types.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>additional arguments. See details.</p></td>
     </tr>
@@ -256,7 +261,7 @@ but for convenience the package offers this wrapper function that creates stock 
 A plot <code>type</code> calls the applicable data set for that plot internally.
 Stock plots use standardized formatting similar to the main <code>snapplot</code> package plot theme.</p>
 <p>Available stock plots include:</p><dl class='dl-horizontal'>
-  <dt><code>ba_sd</code></dt><dd><p>10-year moving average FMO zone burn area annual time series. Optional arguments: <code>alaska = TRUE</code>, <code>breaks</code>, <code>fmo</code>, <code>n</code>.</p></dd>
+  <dt><code>ba_sd</code></dt><dd><p>10-year moving average FMO zone burn area annual time series. Optional arguments: <code>continuous</code>, <code>alaska = TRUE</code>, <code>breaks</code>, <code>fmo</code>, <code>n</code>.</p></dd>
   <dt><code>ba_box</code></dt><dd><p>FMO zone burn area aggregate period box plots. Optional arguments: <code>alaska = TRUE</code>, <code>log = TRUE</code>, <code>fmo</code>.</p></dd>
   <dt><code>cba</code></dt><dd><p>FMO zone cumulative burn area annual time series. Optional arguments: <code>alaska = TRUE</code>, <code>breaks</code>, <code>fmo</code>.</p></dd>
   <dt><code>cost</code></dt><dd><p>Alaska fire management annual costs time series. Optional arguments: <code>breaks</code>.</p></dd>
@@ -268,7 +273,8 @@ Stock plots use standardized formatting similar to the main <code>snapplot</code
     <p>Additional arguments can be provided. General arguments include <code>family</code> (font family).
 Arguments related to specific plot types are ignored when not applicable.
 <code>alaska = TRUE</code> performs statewide aggregation over all FMO zones. <code>log = TRUE</code> applies a log scale transformation.
-<code>n</code> is an integer for the number of years in the moving average window for <code>ba_box</code>, only applicable when <code>alaska = TRUE</code>.
+<code>continuous = TRUE</code> avoids a break in the time series where historical meets RCPs by triplicating the historical data and merging with each RCP series, only for <code>ba_sd</code>.
+<code>n</code> is an integer for the number of years in the moving average window for <code>ba_box</code>, only applicable when <code>alaska = TRUE</code> or <code>continuous = TRUE</code>.
 <code>breaks</code> is a vector of breaks applicable to time series plots with years along the x-axis.
 <code>fmo</code> allows for subsetting the FMO zones available in the <code>fmoba</code> data set; not applicable when <code>alaska = TRUE</code>.
 If not provided, it defaults to <code>fmo = c("Full", "Critical")</code> since these are the most important zones for work encapsulated by the package.</p>
