@@ -2,6 +2,7 @@
 
 * Update `jfsp_plot` to offer optional argument to triplicate annual historical data for inter-annual variability in burn area and prepend to each projected RCP series.
 * Added `pt_size` argument for controlling point size in applicable plot types.
+* Made optional argument `n` for moving average plot applicable to all versions of plot. Now defaults to `n = 30`.
 * Updated data sets, making column names more consistent and informative.
 
 # jfsp 0.3.0
