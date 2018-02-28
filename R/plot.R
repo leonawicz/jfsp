@@ -298,7 +298,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   } else if(type == "cost_dec"){
     cost_lab <- "Cost (Millions of $)"
     title <- ifelse(is_hist, "Historical annual fire management costs",
-                    ifelse(is_proj, "annual fire management costs",
+                    ifelse(is_proj, "Annual fire management costs",
                            "Historical and projected annual fire management costs"))
     subtitle <- ifelse(by_rcp & by_tx, "Mean and 90% confidence interval by decade, treatment and RCP",
                        ifelse(by_rcp, "Mean and 90% confidence interval by decade and RCP",
