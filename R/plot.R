@@ -26,11 +26,11 @@
     dplyr::ungroup()
 }
 
-.rcp_combine <- function(x, type){
+.rcp_combine <- function(x, type, n = 30){
   if(type %in% c("ba_sd", "ba_box", "cba")) x <- dplyr::ungroup(x) %>%
       dplyr::group_by(.data[["Set"]], .data[["Tx"]], .data[["FMO"]], .data[["Year"]]) %>%
       dplyr::summarise(BA = mean(.data[["BA"]])) %>%
-      dplyr::mutate(CBA = cumsum(.data[["BA"]]), BA_sd_ma10 = RcppRoll::roll_sd(.data[["BA"]], 10, fill = NA)) %>%
+      dplyr::mutate(CBA = cumsum(.data[["BA"]]), BA_sd_ma = RcppRoll::roll_sd(.data[["BA"]], n, fill = NA)) %>%
       dplyr::ungroup()
   if(type == "cost") x <- dplyr::ungroup(x) %>%
       dplyr::group_by(.data[["Tx"]], .data[["Year"]], .data[["cost"]]) %>%
@@ -62,7 +62,6 @@
   dplyr::bind_rows(x0, x) %>% dplyr::filter(.data[["RCP"]] != "Historical") %>%
     dplyr::group_by(.data[["Set"]], .data[["Tx"]], .data[["RCP"]], .data[["FMO"]]) %>%
     dplyr::arrange(.data[["Set"]], .data[["Tx"]], .data[["RCP"]], .data[["FMO"]], .data[["Year"]]) %>%
-    dplyr::select(-.data[["BA_sd_ma10"]]) %>%
     dplyr::mutate(BA_sd_ma = RcppRoll::roll_sd(.data[["BA"]], n, fill = NA)) %>% dplyr::ungroup()
 }
 
@@ -198,10 +197,10 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   is_proj <- all(years > 2013)
   breaks <- if(is.null(o$breaks)) ggplot2::waiver() else o$breaks
   if(type %in% c("ba_sd", "cba", "ba_box")){
+    x <- .redo_masd(x, n)
     if(alaska){
       x <- .fmo_combine(x, n)
     } else {
-      if(type == "ba_sd") x <- .redo_masd(x, n)
       fmo <- if(is.null(o$fmo)) c("Full", "Critical") else o$fmo
       x <- dplyr::filter(x, .data[["FMO"]] %in% fmo)
     }
