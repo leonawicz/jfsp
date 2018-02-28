@@ -11,7 +11,14 @@
   if(all(years <= 2013)) hist_col else if(all(years > 2013)) proj_col else all_col
 }
 
-.fmo_combine <- function(x, n = 10){
+.redo_masd <- function(x, n = 30){
+  if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
+  dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["FMO"]], add = TRUE) %>%
+    dplyr::mutate(BA_sd_ma = RcppRoll::roll_sd(.data[["BA"]], n, fill = NA)) %>%
+    dplyr::select(-.data[["BA_sd_ma10"]]) %>% dplyr::ungroup()
+}
+
+.fmo_combine <- function(x, n = 30){
   if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
   dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["Year"]], add = TRUE) %>%
     dplyr::summarise(BA = sum(.data[["BA"]])) %>%
@@ -101,7 +108,7 @@
 #' Available stock plots include:
 #'
 #' \describe{
-#'   \item{\code{ba_sd}}{10-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
+#'   \item{\code{ba_sd}}{n-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
 #'   \item{\code{ba_box}}{FMO zone burn area aggregate period box plots. Optional arguments: \code{alaska = TRUE}, \code{log = TRUE}, \code{fmo}.}
 #'   \item{\code{cba}}{FMO zone cumulative burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
 #'   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
@@ -115,7 +122,7 @@
 #' Arguments related to specific plot types are ignored when not applicable.
 #' \code{alaska = TRUE} performs statewide aggregation over all FMO zones. \code{log = TRUE} applies a log scale transformation.
 #' \code{continuous = TRUE} avoids a break in the time series where historical meets RCPs by triplicating the historical data and merging with each RCP series, only for \code{ba_sd}.
-#' \code{n} is an integer for the number of years in the moving average window for \code{ba_box}, only applicable when \code{alaska = TRUE} or \code{continuous = TRUE}.
+#' \code{n} is an integer for the number of years in the moving average window for \code{ba_sd}. Defaults to 30.
 #' \code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
 #' \code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
 #' If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
@@ -155,7 +162,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   o <- list(...)
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
   continuous <- ifelse(!is.null(o$continuous) && o$continuous, TRUE, FALSE)
-  n <- ifelse(!alaska & !continuous, 10, ifelse(is.null(o$n), 10, o$n))
+  n <- ifelse(!is.null(o$n), o$n, 30)
   if(continuous) x <- .rcp_triplicate(x, type, n)
   if(!by_rcp) x <- .rcp_combine(x, type)
   family <- if(is.null(o$family)) "sans" else o$family
@@ -194,6 +201,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
     if(alaska){
       x <- .fmo_combine(x, n)
     } else {
+      if(type == "ba_sd") x <- .redo_masd(x, n)
       fmo <- if(is.null(o$fmo)) c("Full", "Critical") else o$fmo
       x <- dplyr::filter(x, .data[["FMO"]] %in% fmo)
     }
@@ -209,7 +217,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   }
 
   if(type == "ba_sd"){
-    y_var <- ifelse(alaska | continuous, "BA_sd_ma", "BA_sd_ma10")
+    y_var <- "BA_sd_ma"
     y_lab <- paste0(n, "-year MA burn area SD")
     subtitle <- paste0(n, "-year moving average")
     subtitle <- ifelse(is_hist, subtitle,
@@ -223,8 +231,9 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
                                                     fill = clr_var, linetype = lty_var))
     p <- p + ggplot2::geom_line(size = 1)
     if(!alaska) p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y")
+    lmt <- if(is.numeric(breaks)) range(breaks) else range(x$Year[!is.na(x$BA_sd_ma)])
     p <- p + scm + sfm + thm + .thm_adj("topright", text_size = tsize) + gde +
-      ggplot2::scale_x_continuous(limits = range(years), expand = c(0, 0), breaks = breaks) +
+      ggplot2::scale_x_continuous(limits = lmt, expand = c(0, 0), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "inter-annual variability in burn area"),
            subtitle = subtitle, y = y_lab)
   } else if(type == "cba"){

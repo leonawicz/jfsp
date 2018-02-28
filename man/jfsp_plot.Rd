@@ -44,7 +44,7 @@ Stock plots use standardized formatting similar to the main \code{snapplot} pack
 Available stock plots include:
 
 \describe{
-  \item{\code{ba_sd}}{10-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
+  \item{\code{ba_sd}}{n-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
   \item{\code{ba_box}}{FMO zone burn area aggregate period box plots. Optional arguments: \code{alaska = TRUE}, \code{log = TRUE}, \code{fmo}.}
   \item{\code{cba}}{FMO zone cumulative burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
@@ -58,7 +58,7 @@ Additional arguments can be provided. General arguments include \code{family} (f
 Arguments related to specific plot types are ignored when not applicable.
 \code{alaska = TRUE} performs statewide aggregation over all FMO zones. \code{log = TRUE} applies a log scale transformation.
 \code{continuous = TRUE} avoids a break in the time series where historical meets RCPs by triplicating the historical data and merging with each RCP series, only for \code{ba_sd}.
-\code{n} is an integer for the number of years in the moving average window for \code{ba_box}, only applicable when \code{alaska = TRUE} or \code{continuous = TRUE}.
+\code{n} is an integer for the number of years in the moving average window for \code{ba_sd}. Defaults to 30.
 \code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
 \code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
 If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
