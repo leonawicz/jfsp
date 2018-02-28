@@ -136,6 +136,7 @@
 #' @param file character, if provided, the plot is saved to disk. Otherwise, it is plotted in the R session graphics device. See details.
 #' @param base_size base size passed to theme. See details.
 #' @param text_size text size passed to theme.
+#' @param pt_size override default size for points in applicable plot types.
 #' @param ... additional arguments. See details.
 #'
 #' @return a ggplot object. If saving a png file to disk, nothing is returned.
@@ -144,12 +145,13 @@
 #' @examples
 #' jfsp_plot("ba_box", 1950:2013, log = TRUE)
 jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, col = NULL,
-                      file = NULL, base_size = 14, text_size = 18, ...){
+                      file = NULL, base_size = 14, text_size = 18, pt_size = 2, ...){
   x <- switch(type, "ba_sd" = jfsp::fmoba, "ba_box" = jfsp::fmoba, "cba" = jfsp::fmoba,
               "cost" = dplyr::filter(jfsp::cost, .data[["cost"]] != "5th percentile"),
               "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "pfire" = jfsp::fbxfire,
               "fs_box" = jfsp::firesize)
   if(!by_tx) x <- dplyr::filter(x, .data[["Tx"]] == "Status quo")
+  size <- pt_size
   o <- list(...)
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
   continuous <- ifelse(!is.null(o$continuous) && o$continuous, TRUE, FALSE)
@@ -165,6 +167,8 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   }
   if(is.null(years)) years <- 1950:2099
   if(any(years < 1950 | years > 2099)) stop("Years must be in 1950:2099 for JFSP data.")
+  if(type == "cost_dec" & any(years < 2020))
+    stop("Projected decadal cost estimates summary data set, `costSummary`, covers 2020 - 2099.")
   if(is.null(col)){
     col <- .jfsp_palette(years, by_rcp, by_tx)
     if(type == "ba_box") col <- c("black", "orange")
@@ -262,7 +266,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
     x_var <- ifelse(by_rcp, "RCP", "Tx")
     p <- ggplot2::ggplot(x, ggplot2::aes_string(x_var, y_var, colour = clr_var)) +
       ggplot2::geom_boxplot(outlier.shape = NA) +
-      ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), pch = 21, alpha = 0.5, position = pos)
+      ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), size = size, pch = 21, alpha = 0.5, position = pos)
     if(!alaska) p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y")
     p <- p + sfm + scm + thm + .thm_adj("topright", text_size = tsize) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "annual burn area"),
@@ -286,10 +290,10 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       }
     }
     if(is_hist) p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "value", linetype = "cost")) +
-      ggplot2::geom_line() + ggplot2::geom_point()
+      ggplot2::geom_line() + ggplot2::geom_point(size = size)
     if(!is_hist)
       p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "value", colour = clr_var, linetype = lty_var)) +
-      ggplot2::geom_line() + ggplot2::geom_point(shape = 21)
+      ggplot2::geom_line() + ggplot2::geom_point(size = size, shape = 21)
     if(!is_hist & by_rcp & by_tx) p <- p + ggplot2::facet_wrap(stats::as.formula("~cost"))
     p <- p + thm + sfm + scm + slm + .thm_adj("topleft", text_size = tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), breaks = breaks) +
@@ -308,7 +312,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
                                        fill = clr_var, linetype = lty_var)) +
       ggplot2::geom_errorbar(ggplot2::aes_string(ymin = "`5th percentile`", ymax = "`95th percentile`"),
                     size = 1, position = ggplot2::position_dodge(width = 0.5), width = 0.4) +
-      ggplot2::geom_point(shape = 21, size = 2, colour = "black",
+      ggplot2::geom_point(shape = 21, size = size, colour = "black",
                           position = ggplot2::position_dodge(width = 0.5)) +
       sfm + scm + slm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_discrete(labels = paste0(unique(x[["Decade"]]), "s")) +
@@ -340,6 +344,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   } else if(type == "fs_box"){
     x <- .prep_fs(x)
     pos <- ggplot2::position_jitter(0.2)
+    size <- if(is.null(pt_size)) 1 else pt_size
     if(is_hist){
       lty_var <- NULL
       clr_var <- NULL
@@ -364,7 +369,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
                            "Historical and projected fire size distributions"))
     p <- ggplot2::ggplot(x, ggplot2::aes_string("factor(Decade)", y_var, colour = clr_var)) +
       ggplot2::geom_boxplot(outlier.shape = NA) +
-      ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), pch = 21, alpha = 0.5, position = pos)
+      ggplot2::geom_point(ggplot2::aes_string(fill = clr_var), size = size, pch = 21, alpha = 0.5, position = pos)
     p <- p + sfm + scm + thm + gde +
       ggplot2::scale_x_discrete(labels = paste0(unique(x[["Decade"]]), "s")) +
       ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = y_lab)
