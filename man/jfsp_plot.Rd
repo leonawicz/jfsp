@@ -5,7 +5,8 @@
 \title{Create plots based on various JFSP data sets}
 \usage{
 jfsp_plot(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE,
-  col = NULL, file = NULL, base_size = 14, text_size = 18, ...)
+  col = NULL, file = NULL, base_size = 14, text_size = 18,
+  pt_size = 2, ...)
 }
 \arguments{
 \item{type}{character, the type of plot to make, based on a particular package data set. See details.}
@@ -23,6 +24,8 @@ jfsp_plot(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE,
 \item{base_size}{base size passed to theme. See details.}
 
 \item{text_size}{text size passed to theme.}
+
+\item{pt_size}{override default size for points in applicable plot types.}
 
 \item{...}{additional arguments. See details.}
 }
