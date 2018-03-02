@@ -13,11 +13,9 @@
 
 .redo_masd <- function(x, n = 30){
   if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
-  x <- dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["FMO"]], add = TRUE) %>%
+  dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["FMO"]], add = TRUE) %>%
     dplyr::mutate(BA_sd_ma = RcppRoll::roll_sd(.data[["BA"]], n, fill = NA)) %>%
     dplyr::ungroup()
-  if("BA_sd_ma10" %in% names(x)) x <- dplyr::select(x, -.data[["BA_sd_ma10"]])
-  x
 }
 
 .fmo_combine <- function(x, n = 30){
@@ -165,7 +163,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   continuous <- ifelse(!is.null(o$continuous) && o$continuous, TRUE, FALSE)
   n <- ifelse(!is.null(o$n), o$n, 30)
   if(continuous) x <- .rcp_triplicate(x, type, n)
-  if(!by_rcp) x <- .rcp_combine(x, type)
+  if(!by_rcp) x <- .rcp_combine(x, type, n)
   family <- if(is.null(o$family)) "sans" else o$family
   tsize <- text_size
   bsize <- base_size
