@@ -35,11 +35,14 @@
   if(type == "cost") x <- dplyr::ungroup(x) %>%
       dplyr::group_by(.data[["Tx"]], .data[["Year"]], .data[["cost"]]) %>%
       dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
-  if(type == "cost_dec") x <- dplyr::ungroup(x) %>%
-      dplyr::group_by(.data[["Set"]], .data[["Tx"]], .data[["Decade"]]) %>%
+  if(type == "cost_dec"){
+    x <- dplyr::ungroup(x)
+    if("FMO" %in% names(x)) x <- group_by("FMO")
+    dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["Decade"]], add = TRUE) %>%
       dplyr::summarise(`5th percentile` = mean(.data[["5th percentile"]]),
                        Mean = mean(.data[["Mean"]]),
                        `95th percentile` = mean(.data[["95th percentile"]])) %>% dplyr:: ungroup()
+  }
   if(type == "cdratio") x <- dplyr::ungroup(x) %>%
       dplyr::group_by(.data[["Tx"]], .data[["Year"]]) %>%
       dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
@@ -326,6 +329,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       sfm + scm + slm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_discrete(labels = paste0(unique(x[["Decade"]]), "s")) +
       ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = cost_lab)
+    if("FMO" %in% names(x)) p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"))
   } else if(type == "cdratio"){
     if(is_hist){
       lty_var <- NULL
