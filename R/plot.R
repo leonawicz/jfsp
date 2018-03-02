@@ -152,13 +152,14 @@
 #' jfsp_plot("ba_box", 1950:2013, log = TRUE)
 jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, col = NULL,
                       file = NULL, base_size = 14, text_size = 18, pt_size = 2, ...){
-  x <- switch(type, "ba_sd" = jfsp::fmoba, "ba_box" = jfsp::fmoba, "cba" = jfsp::fmoba,
-              "cost" = dplyr::filter(jfsp::cost, .data[["cost"]] != "5th percentile"),
-              "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "pfire" = jfsp::fbxfire,
-              "fs_box" = jfsp::firesize)
+  o <- list(...)
+  if(!is.null(o$x)) x <- o$x else x <- switch(type,
+    "ba_sd" = jfsp::fmoba, "ba_box" = jfsp::fmoba, "cba" = jfsp::fmoba,
+    "cost" = dplyr::filter(jfsp::cost, .data[["cost"]] != "5th percentile"),
+    "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "pfire" = jfsp::fbxfire,
+    "fs_box" = jfsp::firesize)
   if(!by_tx) x <- dplyr::filter(x, .data[["Tx"]] == "Status quo")
   size <- pt_size
-  o <- list(...)
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
   continuous <- ifelse(!is.null(o$continuous) && o$continuous, TRUE, FALSE)
   n <- ifelse(!is.null(o$n), o$n, 30)
