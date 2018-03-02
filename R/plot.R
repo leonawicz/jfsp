@@ -329,7 +329,8 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       sfm + scm + slm + thm + .thm_adj("topright", text_size = tsize) + gde +
       ggplot2::scale_x_discrete(labels = paste0(unique(x[["Decade"]]), "s")) +
       ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = cost_lab)
-    if("FMO" %in% names(x)) p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"))
+    if("FMO" %in% names(x))
+      p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y", ncol = 2)
   } else if(type == "cdratio"){
     if(is_hist){
       lty_var <- NULL
