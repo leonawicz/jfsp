@@ -13,9 +13,11 @@
 
 .redo_masd <- function(x, n = 30){
   if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
-  dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["FMO"]], add = TRUE) %>%
+  x <- dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["FMO"]], add = TRUE) %>%
     dplyr::mutate(BA_sd_ma = RcppRoll::roll_sd(.data[["BA"]], n, fill = NA)) %>%
-    dplyr::select(-.data[["BA_sd_ma10"]]) %>% dplyr::ungroup()
+    dplyr::ungroup()
+  if("BA_sd_ma10" %in% names(x)) x <- dplyr::select(x, -.data[["BA_sd_ma10"]])
+  x
 }
 
 .fmo_combine <- function(x, n = 30){
