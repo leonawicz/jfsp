@@ -29,7 +29,7 @@ fbxfire <- readRDS("C:/github/jfsp-archive/data-raw/fire_prob_fbks_simplified.rd
   mutate(RCP = factor(sapply(as.character(RCP), f), levels = lev))
 
 gcms <- c("CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3")
-fmoba <- readRDS("C:/github/jfsp-archive/data-raw/ba_fmo2.rds")
+fmoba <- readRDS("C:/github/jfsp-archive/data-raw/ba_fmo/ba_fmo2_alaska.rds")
 sets <- strsplit(fmoba$Set, "\\.")
 fmoba <- mutate(fmoba, Set = sapply(sets, "[", 1), RCP = sapply(sets, "[", 2),
                 Model = gsub("CRU32", "CRU 3.2", sapply(sets, "[", 3))) %>%
@@ -40,7 +40,7 @@ fmoba <- mutate(fmoba, Set = sapply(sets, "[", 1), RCP = sapply(sets, "[", 2),
                                    ifelse(Tx == "tx1", "Treatment 1",
                                           ifelse(Tx == "tx2", "Treatment 2",
                                                  ifelse(Tx == "none", "No management", Tx)))))))
-fmoba2 <- mutate(readRDS("C:/github/jfsp-archive/data-raw/ba_fmo.rds"),
+fmoba2 <- mutate(readRDS("C:/github/jfsp-archive/data-raw/ba_fmo/ba_fmo_alaska.rds"),
              Set = substr(Set, 1, 9), RCP = factor("Historical", levels = lev),
              Model = "Observed", Tx = "Status quo")
 fmoba <- bind_rows(fmoba, fmoba2) %>%
