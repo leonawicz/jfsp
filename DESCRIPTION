@@ -1,5 +1,5 @@
 Package: jfsp
-Version: 0.3.5
+Version: 0.4.0
 Title: Functions and Data Associated with ALFRESCO Wildfire Model Outputs for the Joint Fire Science Program
 Description: Encapsulates code, data and analysis results associated with ALFRESCO wildfire model outputs produced by the Scenarios Network for Alaska and Arctic Planning (SNAP) to assist the Joint Fire Science Program (JFSP). 
     The package provides a collection of functions, data sets, apps and interactive documents for exploring and analyzing ALFRESCO wildfire model outputs associated with JFSP-related projects. It is a satellite package in the SNAPverse R package ecosystem.
