@@ -26,4 +26,6 @@ Imports:
     ggplot2,
     tibble,
     RcppRoll,
-    purrr
+    purrr,
+    dataMaid,
+    pander
