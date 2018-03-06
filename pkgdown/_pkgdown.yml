@@ -29,6 +29,9 @@ reference:
   - cdratio
   - fbxfire
   - firesize
+- title: Data set reports
+  contents:
+  - datadoc
 
 navbar:
   type: inverse
