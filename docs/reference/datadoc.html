@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • jfsp</title>
+<title>Generate a report on a data set � datadoc • jfsp</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -49,7 +49,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -192,133 +192,86 @@
       </header>
 
       <div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;0.5.0</small>
-      </h1>
+    <h1>Generate a report on a data set</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    
+    <p>Generate a pdf, Word or HTML report on any data set in the jfsp package.</p>
+    
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <pre class="usage"><span class='fu'>datadoc</span>(<span class='no'>data</span>, <span class='no'>file</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>subtitle</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>metadata</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>open_doc</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>keep_rmd</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>details</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>data</th>
+      <td><p>jfsp data set, e.g., <code>fmoba</code>.</p></td>
+    </tr>
+    <tr>
+      <th>file</th>
+      <td><p>character, output file, must end in .pdf, .docx, or .html. See details.</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>character, document title.</p></td>
+    </tr>
+    <tr>
+      <th>subtitle</th>
+      <td><p>character, document subtitle. Set to <code>NULL</code> to recover the <code>dataMaid</code> attribution.</p></td>
+    </tr>
+    <tr>
+      <th>metadata</th>
+      <td><p>logical, if <code>TRUE</code>, include metadata. See details.</p></td>
+    </tr>
+    <tr>
+      <th>open_doc</th>
+      <td><p>logical, open document after rendering. Defaults to <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>keep_rmd</th>
+      <td><p>logical, retain the intermediary Rmd document. Defaults to <code>FALSE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>details</th>
+      <td><p>logical, if set to <code>FALSE</code>, do not print any progress.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-package" class="hasAnchor"><a href="#section-package" class="anchor"></a>Package</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="jfsp.html">jfsp</a></code> </p>
-          </td>
-          <td><p>jfsp: R functions and data associated with ALFRESCO wildfire model outputs for the Joint Fire Science Program (JFSP).</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-plotting" class="hasAnchor"><a href="#section-plotting" class="anchor"></a>Plotting</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="jfsp_plot.html">jfsp_plot</a></code> </p>
-          </td>
-          <td><p>Create plots based on various JFSP data sets</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-data-sets" class="hasAnchor"><a href="#section-data-sets" class="anchor"></a>Data sets</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="cost.html">cost</a></code> </p>
-          </td>
-          <td><p>Historical and projected estimated fire management costs.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="costSummary.html">costSummary</a></code> </p>
-          </td>
-          <td><p>Projected estimated fire management costs.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="basecost.html">basecost</a></code> </p>
-          </td>
-          <td><p>Empirical fire management costs.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fmoba.html">fmoba</a></code> </p>
-          </td>
-          <td><p>Annual burn area.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fmobaSummary.html">fmobaSummary</a></code> </p>
-          </td>
-          <td><p>Burn area summary statistics.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="cdratio.html">cdratio</a></code> </p>
-          </td>
-          <td><p>Coniferous:deciduous ratios.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fbxfire.html">fbxfire</a></code> </p>
-          </td>
-          <td><p>Probability of fire near Fairbanks, Alaska.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="firesize.html">firesize</a></code> </p>
-          </td>
-          <td><p>Alaska fire sizes.</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-data-set-reports" class="hasAnchor"><a href="#section-data-set-reports" class="anchor"></a>Data set reports</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="datadoc.html">datadoc</a></code> </p>
-          </td>
-          <td><p>Generate a report on a data set</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+    <p>nothing is returned, but a file is written to disk.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Create a report for a specific data set. The report summarizes the variables in the data set. It is a wrapper around and based on <code><a href='http://www.rdocumentation.org/packages/dataMaid/topics/makeDataReport'>dataMaid::makeDataReport</a></code>, though it renders output with some differences not available in <code>dataMaid</code>.</p>
+<p>Pandoc must be available on the system for rendering to pdf. It is recommended to run from RStudio, which includes the necessary components, if you have difficulty.
+For Word documents (docx) it is necessary to be on a Windows system with Microsoft Word installed.
+If no file name is supplied, the output defaults to HTML and the file name is the name of the data set.</p>
+<p>If <code>metadata = TRUE</code>, information about the system environment and conditions at run time when the document was generated is included at the bottom of the document. If <code>FALSE</code> (default), they are removed.
+Because <code>datadoc</code> does not directly render the document with <code>dataMaid</code> and makes some internal changes to the Rmd file, the function call line in the metadata is always removed due to its resulting lack of clarity.</p>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='fu'>datadoc</span>(<span class='no'>fmoba</span>)
+<span class='co'># }</span></pre>
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-package">Package</a></li>
-      <li><a href="#section-plotting">Plotting</a></li>
-      <li><a href="#section-data-sets">Data sets</a></li>
-      <li><a href="#section-data-set-reports">Data set reports</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
     </ul>
+
   </div>
 </div>
 
