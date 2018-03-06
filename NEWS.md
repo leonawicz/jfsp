@@ -1,3 +1,8 @@
+# jfsp 0.5.0
+
+* Updated all data sets. Added `labels` and `shortDescription` attributes to variables in data frames for use in external data set documentation.
+* Revised data prep script with function to assist in variable attribution.
+
 # jfsp 0.4.0
 
 * Updated several data sets.
