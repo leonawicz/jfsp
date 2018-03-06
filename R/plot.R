@@ -37,7 +37,7 @@
       dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
   if(type == "cost_dec"){
     x <- dplyr::ungroup(x)
-    if("FMO" %in% names(x)) x <- group_by("FMO")
+    if("FMO" %in% names(x)) x <- dplyr::group_by("FMO")
     dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["Decade"]], add = TRUE) %>%
       dplyr::summarise(`5th percentile` = mean(.data[["5th percentile"]]),
                        Mean = mean(.data[["Mean"]]),
