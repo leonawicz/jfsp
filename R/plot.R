@@ -19,8 +19,9 @@
 }
 
 .fmo_combine <- function(x, n = 30){
-  if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]])
-  dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["Year"]], add = TRUE) %>%
+  if("Set" %in% names(x)) x <- dplyr::group_by(x, .data[["Set"]], add = TRUE)
+  if("RCP" %in% names(x)) x <- dplyr::group_by(x, .data[["RCP"]], add = TRUE)
+  dplyr::group_by(x, .data[["Tx"]], .data[["Year"]], add = TRUE) %>%
     dplyr::summarise(BA = sum(.data[["BA"]])) %>%
     dplyr::mutate(CBA = cumsum(.data[["BA"]]), BA_sd_ma = RcppRoll::roll_sd(.data[["BA"]], n, fill = NA)) %>%
     dplyr::ungroup()
@@ -37,8 +38,9 @@
       dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
   if(type == "cost_dec"){
     x <- dplyr::ungroup(x)
-    if("FMO" %in% names(x)) x <- dplyr::group_by("FMO")
-    dplyr::group_by(x, .data[["Set"]], .data[["Tx"]], .data[["Decade"]], add = TRUE) %>%
+    if("Set" %in% names(x)) x <- dplyr::group_by(x, .data[["Set"]], add = TRUE)
+    if("FMO" %in% names(x)) x <- dplyr::group_by(x, .data[["FMO"]], add = TRUE)
+    x <- dplyr::group_by(x, .data[["Tx"]], .data[["Decade"]], add = TRUE) %>%
       dplyr::summarise(`5th percentile` = mean(.data[["5th percentile"]]),
                        Mean = mean(.data[["Mean"]]),
                        `95th percentile` = mean(.data[["95th percentile"]])) %>% dplyr:: ungroup()
