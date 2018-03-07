@@ -36,7 +36,7 @@ datadoc <- function(data, file, title = "", subtitle = "", metadata = FALSE,
   if(details) cat("Genrating Rmd for ", data_name, "...\n", sep = "")
   render <- if(ext == "docx") TRUE else FALSE
   suppressMessages({
-    dataMaid::makeDataReport(data, gsub("docx", "docx", ext), render = render,
+    dataMaid::makeDataReport(data, gsub("docx", "word", ext), render = render,
                              file = rmd, replace = TRUE, openResult = FALSE,
                              codebook = TRUE, reportTitle = paste0("\"", title, "\""))
   })
