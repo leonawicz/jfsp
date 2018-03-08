@@ -355,7 +355,6 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::scale_x_continuous(limits = range(years), expand = c(0, 0), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), a),
                     subtitle = subtitle, y = b)
-    print(x)
     if(type == "cdba")
       p <- p + ggplot2::facet_wrap(stats::as.formula("~Vegetation"), scales = "free_y")
   } else if(type == "pfire"){
