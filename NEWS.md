@@ -1,3 +1,8 @@
+# jfsp 0.6.0
+
+* Added statewide Alaska burn area through time conditional on coniferous vs. deciduous tree species on the landscape.
+* Updated documentation.
+
 # jfsp 0.5.0
 
 * Updated all data sets. Added `labels` and `shortDescription` attributes to variables in data frames for use in external data set documentation.
