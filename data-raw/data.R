@@ -24,6 +24,13 @@ cdratio <- readRDS("C:/github/jfsp-archive/data-raw/conif_decid_area.rds") %>% s
   summarise(Val = Val[1] / Val[2]) %>% ungroup %>% rename(value = Val) %>%
   mutate(Tx = ifelse(Tx == "tx0", "Status quo", ifelse(Tx == "tx1", "Treatment 1", "Treatment 2")))
 
+# Alaska confierous:deciduous burn area
+cdba <- readRDS("C:/github/jfsp-archive/data-raw/conif_decid_ba.rds") %>% select(-FMO) %>%
+  group_by(Tx, RCP, Year, Vegetation) %>% summarise(Val = mean(Val)) %>%
+  ungroup %>% rename(value = Val) %>%
+  mutate(value = as.integer(round(247.105 * value)),
+         Tx = ifelse(Tx == "tx0", "Status quo", ifelse(Tx == "tx1", "Treatment 1", "Treatment 2")))
+
 # Robust annual P(Fire) near Fairbanks, Alaska
 fbxfire <- readRDS("C:/github/jfsp-archive/data-raw/fire_prob_fbks_simplified.rds") %>%
   mutate(RCP = factor(sapply(as.character(RCP), f), levels = lev))
@@ -123,6 +130,10 @@ fbxfire <- set_atts(fbxfire, lab, desc)
 lab <- c(tx[1], rcp[1], yr[1], "Coniferous:Deciduous ratio")
 desc <- c(tx[2], rcp[2], yr[2], "The ratio of coniferous to deciduous species on the Alaska landscape through time in ALFRESCO output")
 cdratio <- set_atts(cdratio, lab, desc)
+
+lab <- c(tx[1], rcp[1], yr[1], "Coniferous:Deciduous burn area")
+desc <- c(tx[2], rcp[2], yr[2], "TConiferous and deciduous species burn area on the Alaska landscape through time in ALFRESCO output")
+cdba <- set_atts(cdratio, lab, desc)
 
 lab <- c(tx[1], rcp[1], dec[1], "Fire size", "Frequency")
 desc <- c(tx[2], rcp[2], dec[2], "Fir size distributions per year in acres with a minimum of resolution of 247 acres after conversion to acres from native 1-km resolution ALFRESCO output", "Frequency of fires of a given size per year in ALFRESCO output")

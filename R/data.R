@@ -44,6 +44,13 @@
 #' @format A data frame with 580 rows and 4 columns.
 "cdratio"
 
+#' Coniferous:deciduous burn area.
+#'
+#' A data frame of annual Alaska coniferous and deciduous burn area total computed from ALFRESCO model output, by ALFRESCO FMO treatment and RCP.
+#'
+#' @format A data frame with 1,160 rows and 5 columns.
+"cdba"
+
 #' Probability of fire near Fairbanks, Alaska.
 #'
 #' A data frame of the probability of fire near Fairbanks, Alaska within each of a sequence of radial buffers of Fairbanks, based on ALFRESCO simulation output.
