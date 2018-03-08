@@ -45,9 +45,12 @@
                        Mean = mean(.data[["Mean"]]),
                        `95th percentile` = mean(.data[["95th percentile"]])) %>% dplyr:: ungroup()
   }
-  if(type == "cdratio") x <- dplyr::ungroup(x) %>%
-      dplyr::group_by(.data[["Tx"]], .data[["Year"]]) %>%
-      dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
+  if(type == "cdratio" | type == "cdba"){
+    x <- dplyr::ungroup(x) %>%
+      dplyr::group_by(.data[["Tx"]], .data[["Year"]])
+    if(type == "cdba") x <- dplyr::group_by(x, .data[["Vegetation"]], add = TRUE)
+    x <- dplyr::summarise(x, value = mean(.data[["value"]])) %>% dplyr::ungroup()
+  }
   if(type == "pfire") x <- dplyr::ungroup(x) %>%
       dplyr::group_by(.data[["Tx"]], .data[["Years"]], .data[["buffer"]]) %>%
       dplyr::summarise(value = mean(.data[["value"]])) %>% dplyr:: ungroup()
@@ -118,6 +121,7 @@
 #'   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
 #'   \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series.}
 #'   \item{\code{cdratio}}{Alaska coniferous:deciduous ratios annual time series. Optional arguments: \code{breaks}.}
+#'   \item{\code{cdba}}{Alaska coniferous and deciduous annual burn area time series. Optional arguments: \code{breaks}.}
 #'   \item{\code{pfire}}{Probability of fire near Fairbanks as a function of radial buffer distance. The \code{years} argument is ignored for this plot.}
 #'   \item{\code{fs_box}}{Alaska fire size distribution decadal box plots. Optional arguments: \code{log}.}
 #' }
@@ -339,12 +343,6 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       clr_var <- NULL
       gde <- ggplot2::guides(colour = ggplot2::guide_legend(order = 1))
     }
-    if(!by_tx) lty_var <- "Vegetation"
-    if(by_tx & !by_rcp) lty_var <- "Vegetation"
-    if(!by_rcp & !by_tx) {
-      lty_var <- NULL
-      clr_var <- "Vegetation"
-    }
     subtitle <- ifelse(is_hist, "Alaska historical modeled outputs",
                        ifelse(is_proj, "Alaska 5-model average projected outputs",
                               "Alaska historical modeled and 5-model average projected outputs"))
@@ -357,7 +355,8 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::scale_x_continuous(limits = range(years), expand = c(0, 0), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), a),
                     subtitle = subtitle, y = b)
-    if(by_rcp & by_tx)
+    print(x)
+    if(type == "cdba")
       p <- p + ggplot2::facet_wrap(stats::as.formula("~Vegetation"), scales = "free_y")
   } else if(type == "pfire"){
     p <- ggplot2::ggplot(x, ggplot2::aes_string("buffer", "value", colour = clr_var, linetype = lty_var)) +
