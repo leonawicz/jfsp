@@ -50,6 +50,7 @@ Available stock plots include:
   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
   \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series.}
   \item{\code{cdratio}}{Alaska coniferous:deciduous ratios annual time series. Optional arguments: \code{breaks}.}
+  \item{\code{cdba}}{Alaska coniferous and deciduous annual burn area time series. Optional arguments: \code{breaks}.}
   \item{\code{pfire}}{Probability of fire near Fairbanks as a function of radial buffer distance. The \code{years} argument is ignored for this plot.}
   \item{\code{fs_box}}{Alaska fire size distribution decadal box plots. Optional arguments: \code{log}.}
 }
