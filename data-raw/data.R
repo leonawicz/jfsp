@@ -133,7 +133,7 @@ cdratio <- set_atts(cdratio, lab, desc)
 
 lab <- c(tx[1], rcp[1], yr[1], "Coniferous:Deciduous burn area")
 desc <- c(tx[2], rcp[2], yr[2], "TConiferous and deciduous species burn area on the Alaska landscape through time in ALFRESCO output")
-cdba <- set_atts(cdratio, lab, desc)
+cdba <- set_atts(cdba, lab, desc)
 
 lab <- c(tx[1], rcp[1], dec[1], "Fire size", "Frequency")
 desc <- c(tx[2], rcp[2], dec[2], "Fir size distributions per year in acres with a minimum of resolution of 247 acres after conversion to acres from native 1-km resolution ALFRESCO output", "Frequency of fires of a given size per year in ALFRESCO output")
