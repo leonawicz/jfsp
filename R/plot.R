@@ -161,8 +161,8 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   if(!is.null(o$x)) x <- o$x else x <- switch(type,
     "ba_sd" = jfsp::fmoba, "ba_box" = jfsp::fmoba, "cba" = jfsp::fmoba,
     "cost" = dplyr::filter(jfsp::cost, .data[["cost"]] != "5th percentile"),
-    "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "pfire" = jfsp::fbxfire,
-    "fs_box" = jfsp::firesize)
+    "cost_dec" = jfsp::costSummary, "cdratio" = jfsp::cdratio, "cdba" = jfsp::cdba,
+    "pfire" = jfsp::fbxfire, "fs_box" = jfsp::firesize)
   if(!by_tx) x <- dplyr::filter(x, .data[["Tx"]] == "Status quo")
   size <- pt_size
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
