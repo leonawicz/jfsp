@@ -1,6 +1,7 @@
 # jfsp 0.6.0
 
 * Added statewide Alaska burn area through time conditional on coniferous vs. deciduous tree species on the landscape.
+* Updated `jfsp_plot` to offer a `cdba` plot option.
 * Updated documentation.
 
 # jfsp 0.5.0

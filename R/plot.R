@@ -333,22 +333,32 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = cost_lab)
     if("FMO" %in% names(x))
       p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y", ncol = 2)
-  } else if(type == "cdratio"){
+  } else if(type == "cdratio" | type == "cdba"){
     if(is_hist){
       lty_var <- NULL
       clr_var <- NULL
       gde <- ggplot2::guides(colour = ggplot2::guide_legend(order = 1))
     }
+    if(!by_tx) lty_var <- "Vegetation"
+    if(by_tx & !by_rcp) lty_var <- "Vegetation"
+    if(!by_rcp & !by_tx) {
+      lty_var <- NULL
+      clr_var <- "Vegetation"
+    }
     subtitle <- ifelse(is_hist, "Alaska historical modeled outputs",
                        ifelse(is_proj, "Alaska 5-model average projected outputs",
                               "Alaska historical modeled and 5-model average projected outputs"))
+    a <- ifelse(type == "cdratio", "coniferous:deciduous ratio", "coniferous and deciduous burn area")
+    b <- ifelse(type == "cdratio", "Ratio", "Burn area (acres)")
     p <- ggplot2::ggplot(x, ggplot2::aes_string("Year", "value", colour = clr_var, linetype = lty_var)) +
       ggplot2::geom_line(size = 1)
     if(!is_hist) p <- p + slm
     p <- p + scm + thm + .thm_adj("topright", "vertical", tsize) + gde +
       ggplot2::scale_x_continuous(limits = range(years), expand = c(0, 0), breaks = breaks) +
-      ggplot2::labs(title = paste(min(years), "-", max(years), "coniferous:deciduous ratio"),
-                    subtitle = subtitle, y = "Ratio")
+      ggplot2::labs(title = paste(min(years), "-", max(years), a),
+                    subtitle = subtitle, y = b)
+    if(by_rcp & by_tx)
+      p <- p + ggplot2::facet_wrap(stats::as.formula("~Vegetation"), scales = "free_y")
   } else if(type == "pfire"){
     p <- ggplot2::ggplot(x, ggplot2::aes_string("buffer", "value", colour = clr_var, linetype = lty_var)) +
       ggplot2::geom_line(size = 1) +
