@@ -44,11 +44,11 @@ Stock plots use standardized formatting similar to the main \code{snapplot} pack
 Available stock plots include:
 
 \describe{
-  \item{\code{ba_sd}}{n-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
+  \item{\code{ba_sd}}{n-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}, \code{obs = TRUE}.}
   \item{\code{ba_box}}{FMO zone burn area aggregate period box plots. Optional arguments: \code{alaska = TRUE}, \code{log = TRUE}, \code{fmo}.}
   \item{\code{cba}}{FMO zone cumulative burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
-  \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
-  \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series.}
+  \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}, \code{obs = TRUE}.}
+  \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series. Optional arguments: \code{obs = TRUE}}
   \item{\code{cdratio}}{Alaska coniferous:deciduous ratios annual time series. Optional arguments: \code{breaks}.}
   \item{\code{cdba}}{Alaska coniferous and deciduous annual burn area time series. Optional arguments: \code{breaks}.}
   \item{\code{pfire}}{Probability of fire near Fairbanks as a function of radial buffer distance. The \code{years} argument is ignored for this plot.}
@@ -62,6 +62,7 @@ Arguments related to specific plot types are ignored when not applicable.
 \code{n} is an integer for the number of years in the moving average window for \code{ba_sd}. Defaults to 30.
 \code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
 \code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
+\code{obs = TRUE} will overlay a representation of historical observed data on a plot, such as a horizontal line showing the historical average. This applies to \code{ba_sd}, \code{cost} and \code{cost_dec}.
 If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
 
 If the \code{showtext} is loaded, it may be necessary to significantly increase \code{base_size} and/or \code{text_size} for the 300 dpi image saved when \code{file} is not \code{NULL}.
