@@ -1,3 +1,7 @@
+# jfsp 0.6.1
+
+* Added optional argument `obs = TRUE` to `jfsp_plot` for adding horizontal line overlay for mean historical observed values pertaining to BA SD and management cost plots.
+
 # jfsp 0.6.0
 
 * Added statewide Alaska burn area through time conditional on coniferous vs. deciduous tree species on the landscape.
