@@ -194,7 +194,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   }
   scm <- ggplot2::scale_color_manual(values = col)
   sfm <- ggplot2::scale_fill_manual(values = col)
-  slm <- ggplot2::scale_linetype_manual(values = 1:2)
+  slm <- ggplot2::scale_linetype_manual(values = c("solid", "longdash"))
   thm <- .thm(base_size = bsize, base_family = family)
   if(!by_rcp & !by_tx){
     gde <- ggplot2::guides(colour = ggplot2::guide_legend(order = 1))
@@ -228,7 +228,6 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   }
 
   if(type == "ba_sd"){
-    print(x)
     y_var <- "BA_sd_ma"
     y_lab <- paste0(n, "-year MA burn area SD")
     subtitle <- paste0(n, "-year moving average")
@@ -252,7 +251,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       xo <- dplyr::filter(jfsp::fmoba, .data[["Set"]] == "Observed") %>% .redo_masd(n)
       if(alaska) xo <- .fmo_combine(xo, n)
       v <- mean(xo$BA_sd_ma, na.rm = TRUE)
-      p <- p + ggplot2::geom_hline(yintercept = v, linetype = "dashed", color = "gray", size = 1)
+      p <- p + ggplot2::geom_hline(yintercept = v, linetype = "longdash", color = "gray", size = 1)
     }
   } else if(type == "cba"){
     cba_lab <- "Cumulative burn area (acres)"
@@ -326,7 +325,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::scale_x_continuous(limits = range(years), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "fire management cost"),
                     subtitle = subtitle, y = cost_lab)
-    if(obs) p <- p + ggplot2::geom_hline(yintercept = 45, linetype = "dashed", color = "gray", size = 1)
+    if(obs) p <- p + ggplot2::geom_hline(yintercept = 45, linetype = "longdash", color = "gray", size = 1)
   } else if(type == "cost_dec"){
     cost_lab <- "Cost (Millions of $)"
     title <- ifelse(is_hist, "Historical annual fire management costs",
@@ -347,7 +346,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = cost_lab)
     if("FMO" %in% names(x))
       p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y", ncol = 2)
-    if(obs) p <- p + ggplot2::geom_hline(yintercept = 45, linetype = "dashed", color = "gray", size = 1)
+    if(obs) p <- p + ggplot2::geom_hline(yintercept = 45, linetype = "longdash", color = "gray", size = 1)
   } else if(type == "cdratio" | type == "cdba"){
     if(is_hist){
       lty_var <- NULL
