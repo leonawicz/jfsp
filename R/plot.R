@@ -249,7 +249,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::labs(title = paste(min(years), "-", max(years), "inter-annual variability in burn area"),
            subtitle = subtitle, y = y_lab)
     if(obs){
-      xo <- filter(fmoba, .data[["Set"]] == "Observed") %>% .redo_masd(n)
+      xo <- dplyr::filter(jfsp::fmoba, .data[["Set"]] == "Observed") %>% .redo_masd(n)
       if(alaska) xo <- .fmo_combine(xo, n)
       v <- mean(xo$BA_sd_ma, na.rm = TRUE)
       p <- p + ggplot2::geom_hline(yintercept = v, linetype = "dashed", color = "gray", size = 1)
