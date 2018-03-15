@@ -115,11 +115,11 @@
 #' Available stock plots include:
 #'
 #' \describe{
-#'   \item{\code{ba_sd}}{n-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}.}
+#'   \item{\code{ba_sd}}{n-year moving average FMO zone burn area annual time series. Optional arguments: \code{continuous}, \code{alaska = TRUE}, \code{breaks}, \code{fmo}, \code{n}, \code{obs = TRUE}.}
 #'   \item{\code{ba_box}}{FMO zone burn area aggregate period box plots. Optional arguments: \code{alaska = TRUE}, \code{log = TRUE}, \code{fmo}.}
 #'   \item{\code{cba}}{FMO zone cumulative burn area annual time series. Optional arguments: \code{alaska = TRUE}, \code{breaks}, \code{fmo}.}
-#'   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}.}
-#'   \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series.}
+#'   \item{\code{cost}}{Alaska fire management annual costs time series. Optional arguments: \code{breaks}, \code{obs = TRUE}.}
+#'   \item{\code{cost_dec}}{Alaska fire management decadal projected costs time series. Optional arguments: \code{obs = TRUE}}
 #'   \item{\code{cdratio}}{Alaska coniferous:deciduous ratios annual time series. Optional arguments: \code{breaks}.}
 #'   \item{\code{cdba}}{Alaska coniferous and deciduous annual burn area time series. Optional arguments: \code{breaks}.}
 #'   \item{\code{pfire}}{Probability of fire near Fairbanks as a function of radial buffer distance. The \code{years} argument is ignored for this plot.}
@@ -133,6 +133,7 @@
 #' \code{n} is an integer for the number of years in the moving average window for \code{ba_sd}. Defaults to 30.
 #' \code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
 #' \code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
+#' \code{obs = TRUE} will overlay a representation of historical observed data on a plot, such as a horizontal line showing the historical average. This applies to \code{ba_sd}, \code{cost} and \code{cost_dec}.
 #' If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
 #'
 #' If the \code{showtext} is loaded, it may be necessary to significantly increase \code{base_size} and/or \code{text_size} for the 300 dpi image saved when \code{file} is not \code{NULL}.
@@ -169,6 +170,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
     "pfire" = jfsp::fbxfire, "fs_box" = jfsp::firesize)
   if(!by_tx) x <- dplyr::filter(x, .data[["Tx"]] == "Status quo")
   size <- pt_size
+  obs <- if(!is.null(o$obs) && o$obs) TRUE else FALSE
   alaska <- if(!is.null(o$alaska) && o$alaska) TRUE else FALSE
   continuous <- ifelse(!is.null(o$continuous) && o$continuous, TRUE, FALSE)
   n <- ifelse(!is.null(o$n), o$n, 30)
@@ -226,6 +228,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
   }
 
   if(type == "ba_sd"){
+    print(x)
     y_var <- "BA_sd_ma"
     y_lab <- paste0(n, "-year MA burn area SD")
     subtitle <- paste0(n, "-year moving average")
@@ -245,6 +248,12 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::scale_x_continuous(limits = lmt, expand = c(0, 0), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "inter-annual variability in burn area"),
            subtitle = subtitle, y = y_lab)
+    if(obs){
+      xo <- filter(fmoba, .data[["Set"]] == "Observed") %>% .redo_masd(n)
+      if(alaska) xo <- .fmo_combine(xo, n)
+      v <- mean(xo$BA_sd_ma, na.rm = TRUE)
+      p <- p + ggplot2::geom_hline(yintercept = v, linetype = "dashed", color = "gray", size = 1)
+    }
   } else if(type == "cba"){
     cba_lab <- "Cumulative burn area (acres)"
     subtitle <- ifelse(is_hist, "Historical observed and modeled",
@@ -317,6 +326,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::scale_x_continuous(limits = range(years), breaks = breaks) +
       ggplot2::labs(title = paste(min(years), "-", max(years), "fire management cost"),
                     subtitle = subtitle, y = cost_lab)
+    if(obs) p <- p + ggplot2::geom_hline(yintercept = 45, linetype = "dashed", color = "gray", size = 1)
   } else if(type == "cost_dec"){
     cost_lab <- "Cost (Millions of $)"
     title <- ifelse(is_hist, "Historical annual fire management costs",
@@ -337,6 +347,7 @@ jfsp_plot <- function(type = NULL, years = NULL, by_rcp = TRUE, by_tx = TRUE, co
       ggplot2::labs(title = title, subtitle = subtitle, x = "Decade", y = cost_lab)
     if("FMO" %in% names(x))
       p <- p + ggplot2::facet_wrap(stats::as.formula("~FMO"), scales = "free_y", ncol = 2)
+    if(obs) p <- p + ggplot2::geom_hline(yintercept = 45, linetype = "dashed", color = "gray", size = 1)
   } else if(type == "cdratio" | type == "cdba"){
     if(is_hist){
       lty_var <- NULL
