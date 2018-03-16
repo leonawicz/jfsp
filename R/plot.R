@@ -133,8 +133,8 @@
 #' \code{n} is an integer for the number of years in the moving average window for \code{ba_sd}. Defaults to 30.
 #' \code{breaks} is a vector of breaks applicable to time series plots with years along the x-axis.
 #' \code{fmo} allows for subsetting the FMO zones available in the \code{fmoba} data set; not applicable when \code{alaska = TRUE}.
-#' \code{obs = TRUE} will overlay a representation of historical observed data on a plot, such as a horizontal line showing the historical average. This applies to \code{ba_sd}, \code{cost} and \code{cost_dec}.
 #' If not provided, it defaults to \code{fmo = c("Full", "Critical")} since these are the most important zones for work encapsulated by the package.
+#' \code{obs = TRUE} will overlay a representation of historical observed data on a plot, such as a horizontal line showing the historical average. This applies to \code{ba_sd}, \code{cost} and \code{cost_dec}.
 #'
 #' If the \code{showtext} is loaded, it may be necessary to significantly increase \code{base_size} and/or \code{text_size} for the 300 dpi image saved when \code{file} is not \code{NULL}.
 #' Google fonts and even base R fonts may shrink significantly relative to the plot under these circumstances with showtext in effect (e.g., after calling \code{showtext_auto}).
