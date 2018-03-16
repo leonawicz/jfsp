@@ -143,4 +143,4 @@ lab <- c("Limited management", "Modified management", "Critical management", "Fu
 desc <- c("Historical annual empirical fire management costs per unit area (dollars/acre) for the years 2001 - 2017")
 basecost <- set_atts(select(basecost, c(1, 2, 4, 3)), lab, desc)
 
-usethis::use_data(basecost, cdratio, fbxfire, fmoba, fmobaSummary, cost, costSummary, firesize)
+usethis::use_data(basecost, cdratio, cdba, fbxfire, fmoba, fmobaSummary, cost, costSummary, firesize)
