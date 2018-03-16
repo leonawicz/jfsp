@@ -1,3 +1,7 @@
+# jfsp 0.6.5
+
+* Added a more robust and complete unit test suite for plots, dataset availability and dataset report generation.
+
 # jfsp 0.6.1
 
 * Added optional argument `obs = TRUE` to `jfsp_plot` for adding horizontal line overlay for mean historical observed values pertaining to BA SD and management cost plots.
