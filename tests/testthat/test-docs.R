@@ -3,6 +3,7 @@ context("docs")
 x <- list(basecost, cdratio, fbxfire, fmoba, fmobaSummary, cost, costSummary, firesize)
 
 test_that("datadoc runs without error", {
+  skip_on_appveyor()
   expect_is(datadoc(basecost, open_doc = FALSE), "NULL")
   expect_is(datadoc(cdratio, "out.html", open_doc = FALSE), "NULL")
   expect_is(datadoc(fbxfire, "out.pdf", open_doc = FALSE), "NULL")
