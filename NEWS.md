@@ -1,3 +1,7 @@
+# jfsp 0.6.6
+
+* Updated `fbxfire` dataset, fixing erroneous values due to a bug in upstream data processing.
+
 # jfsp 0.6.5
 
 * Added a more robust and complete unit test suite for plots, dataset availability and dataset report generation.
