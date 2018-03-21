@@ -278,8 +278,8 @@ Arguments related to specific plot types are ignored when not applicable.
 <code>n</code> is an integer for the number of years in the moving average window for <code>ba_sd</code>. Defaults to 30.
 <code>breaks</code> is a vector of breaks applicable to time series plots with years along the x-axis.
 <code>fmo</code> allows for subsetting the FMO zones available in the <code>fmoba</code> data set; not applicable when <code>alaska = TRUE</code>.
-<code>obs = TRUE</code> will overlay a representation of historical observed data on a plot, such as a horizontal line showing the historical average. This applies to <code>ba_sd</code>, <code>cost</code> and <code>cost_dec</code>.
-If not provided, it defaults to <code>fmo = c("Full", "Critical")</code> since these are the most important zones for work encapsulated by the package.</p>
+If not provided, it defaults to <code>fmo = c("Full", "Critical")</code> since these are the most important zones for work encapsulated by the package.
+<code>obs = TRUE</code> will overlay a representation of historical observed data on a plot, such as a horizontal line showing the historical average. This applies to <code>ba_sd</code>, <code>cost</code> and <code>cost_dec</code>.</p>
 <p>If the <code>showtext</code> is loaded, it may be necessary to significantly increase <code>base_size</code> and/or <code>text_size</code> for the 300 dpi image saved when <code>file</code> is not <code>NULL</code>.
 Google fonts and even base R fonts may shrink significantly relative to the plot under these circumstances with showtext in effect (e.g., after calling <code>showtext_auto</code>).
 If this happens, try 20 and 60 instead of 14 and 18, respectively.
